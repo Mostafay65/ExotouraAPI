@@ -1,4 +1,5 @@
-import AppError from "../utils/appError.js";
+import AppError from "../utilities/appError.js";
+import httpStatusText from "../helpers/httpStatusText.js";
 
 const handleCastErrorDB = (err) => {
   const message = `Invalid ${err.path}: ${err.value}.`;
@@ -6,9 +7,7 @@ const handleCastErrorDB = (err) => {
 };
 
 const handleDuplicateFieldsDB = (error) => {
-  const value = error.errorResponse.errmsg.match(
-    /(["'])(?:(?=(\\?))\2.)*?\1/
-  )[0];
+  const value = error.errorResponse.errmsg.match(/(["'])(?:(?=(\\?))\2.)*?\1/)[0];
 
   const message = `Duplicate value "${value}". Please use another value.`;
   return new AppError(message, 400);
@@ -44,7 +43,7 @@ const sendErrorProd = (err, res) => {
     console.error("Error💥: " + err);
 
     res.status(500).json({
-      status: "error",
+      status: httpStatusText.ERROR,
       message: "Something went very wrong!",
     });
   }
@@ -70,8 +69,7 @@ const globalErrorHandler = (err, req, res, next) => {
     // Database errors
     if (error.name === "CastError") error = handleCastErrorDB(error);
     if (error.code === 11000) error = handleDuplicateFieldsDB(error);
-    if (error.name === "ValidationError")
-      error = handleValidationErrorDB(error);
+    if (error.name === "ValidationError") error = handleValidationErrorDB(error);
 
     // JWT errors
     if (error.name === "JsonWebTokenError") error = handleJTWError();

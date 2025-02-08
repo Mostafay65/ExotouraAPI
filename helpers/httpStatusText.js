@@ -3,9 +3,7 @@ const FAIL = "fail";
 const ERROR = "error";
 
 export default {
-    SUCCESS,
-    FAIL,
-    ERROR,
+  SUCCESS,
+  FAIL,
+  ERROR,
 };
-
-

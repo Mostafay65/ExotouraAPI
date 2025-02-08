@@ -67,12 +67,13 @@ class ApiFeatures {
     return this;
   }
 
+  // Edit later after adding an index to perform faster search.
   search() {
-    if (this.queryString.search) {
-      this.query = this.query.find({
-        $text: { $search: this.queryString.search },
-      });
-    }
+    // if (this.queryString.search) {
+    //   this.query = this.query.find({
+    //     $text: { $search: this.queryString.search },
+    //   });
+    // }
 
     return this;
   }

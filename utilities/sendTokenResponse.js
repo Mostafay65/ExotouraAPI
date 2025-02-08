@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import httpStatusText from "../helpers/httpStatusText";
 
 export const signToken = (data, secretKey, expiresIn) => {
   return jwt.sign({ ...data }, secretKey, {
@@ -10,7 +11,8 @@ const sendTokenResponse = (user, statusCode, res, message) => {
   const accessToken = signToken(
     {
       userInfo: {
-        username: user.username,
+        id: user._id,
+        fullName: user.fullName,
         role: user.role,
       },
     },
@@ -18,7 +20,7 @@ const sendTokenResponse = (user, statusCode, res, message) => {
     process.env.ACCESS_TOKEN_EXPIRES_IN
   );
   const refreshToken = signToken(
-    { id: user.id },
+    { id: user._id },
     process.env.REFRESH_TOKEN_SECRET,
     process.env.REFRESH_TOKEN_EXPIRES_IN
   );
@@ -31,7 +33,7 @@ const sendTokenResponse = (user, statusCode, res, message) => {
   });
 
   res.status(statusCode).json({
-    status: "success",
+    status: httpStatusText.SUCCESS,
     message,
     accessToken,
   });

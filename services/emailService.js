@@ -1,16 +1,15 @@
 import nodemailer from "nodemailer";
-import { convert } from "html-to-text";
 import ejs from "ejs";
 import { dirname, join } from "path";
 import { fileURLToPath } from "url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 class Email {
-  constructor(user, url) {
+  constructor(user, data) {
     this.to = user.email;
     this.firstName = user.fullName.firstName;
-    this.url = url;
-    this.from = `"Vendix" <${process.env.EMAIL_FROM}>`;
+    this.data = data;
+    this.from = `"Exotoura" <${process.env.EMAIL_FROM}>`;
   }
 
   newTransport() {
@@ -37,36 +36,34 @@ class Email {
   }
 
   async send(template, subject) {
-    const html = await ejs.renderFile(
-      join(__dirname, `../views/${template}.ejs`),
-      {
-        firstName: this.firstName,
-        url: this.url,
-        subject,
-      }
-    );
+    // const html = await ejs.renderFile(
+    //   join(__dirname, `../views/${template}.ejs`),
+    //   {
+    //     firstName: this.firstName,
+    //     url: this.url,
+    //     subject,
+    //   }
+    // );
 
     const mailOptions = {
       from: this.from,
       to: this.to,
       subject,
-      html,
-      text: convert(html, {
-        wordwrap: 130,
-      }),
+      text: this.data,
+      // html,
+      // text: convert(html, {
+      //   wordwrap: 130,
+      // }),
     };
 
     await this.newTransport().sendMail(mailOptions);
   }
 
   async sendWelcome() {
-    await this.send("welcome", "Welcome to Vendix!");
+    await this.send("welcome", "Welcome to Exotoura!");
   }
   async sendVerify() {
-    await this.send(
-      "verify",
-      "Verify your account (valid for only 10 minutes)"
-    );
+    await this.send("verify", "Verify your account (valid for only 10 minutes)");
   }
   async sendNotifyPasswordChange() {
     await this.send("notifyPasswordChange", "Your password has changed!");
@@ -74,7 +71,7 @@ class Email {
   async sendPasswordReset() {
     await this.send(
       "passwordReset",
-      "Your password reset link (valid for only 10 minutes)"
+      "Your password reset code (valid for only 10 minutes)"
     );
   }
 }
