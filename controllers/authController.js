@@ -41,7 +41,7 @@ export const signup = catchAsync(async (req, res, next) => {
       status: httpStatusText.SUCCESS,
       message: "User signed up! Verification email sent.",
     });
-  } catch {
+  } catch (err) {
     // Abort transaction
     await session.abortTransaction();
     session.endSession();
@@ -86,14 +86,13 @@ export const verifyEmail = catchAsync(async (req, res, next) => {
   const user = await User.findOne({
     verificationCode: hashedCode,
     verificationCodeExpires: { $gt: Date.now() },
-  });
+  }).select("+tempEmail");
 
   if (!user) {
     return next(new AppError("Verification code is invalid.", 400));
   }
 
   const isEmailChange = Boolean(user.tempEmail);
-
   user.verificationCode = undefined;
   user.verificationCodeExpires = undefined;
   if (isEmailChange) {
@@ -184,12 +183,9 @@ export const updatePassword = catchAsync(async (req, res, next) => {
   sendTokenResponse(user, 200, res);
 });
 
+// TODO: Edit later to check if the given email exist (use API).
 export const updateEmail = catchAsync(async (req, res, next) => {
-  const user = await User.findById(req.user._id).select("+password");
-
-  if (!(await user.correctPassword(req.body.password))) {
-    return next(new AppError("Password is incorrect.", 401));
-  }
+  const user = await User.findById(req.user._id);
 
   user.tempEmail = req.body.email;
   const validationError = user.validateSync(["tempEmail"]);

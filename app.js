@@ -1,5 +1,8 @@
 import express from "express";
 import globalErrorHandler from "./controllers/errorController.js";
+import authRouter from "./routes/authRoutes.js";
+import cookieParser from "cookie-parser";
+import AppError from "./utilities/appError.js";
 
 import { dirname, join } from "path";
 import { fileURLToPath } from "url";
@@ -16,6 +19,7 @@ app.use(express.static(join(__dirname, "/uploads")));
 app.use(express.json());
 
 // Routes
+app.use("/auth", authRouter);
 
 // Undefined routes
 app.all("*", async (req, res, next) => {

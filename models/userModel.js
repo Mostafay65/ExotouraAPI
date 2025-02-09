@@ -1,7 +1,7 @@
 import mongoose, { Schema } from "mongoose";
 import validator from "validator";
 import crypto from "crypto";
-import bcrypt from "bcryptjs";
+import bcrypt from "bcrypt";
 import roles from "../helpers/roles.js";
 
 const userSchema = new mongoose.Schema({
@@ -162,7 +162,10 @@ userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
 userSchema.methods.createPasswordResetToken = function () {
   const resetCode = Math.floor(1000 + Math.random() * 9000);
 
-  this.passwordResetToken = crypto.createHash("sha256").update(resetCode).digest("hex");
+  this.passwordResetToken = crypto
+    .createHash("sha256")
+    .update(resetCode.toString())
+    .digest("hex");
   this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
 
   return resetCode;
@@ -173,7 +176,7 @@ userSchema.methods.createVerificationCode = function () {
 
   this.verificationCode = crypto
     .createHash("sha256")
-    .update(verificationCode)
+    .update(verificationCode.toString())
     .digest("hex");
   this.verificationCodeExpires = Date.now() + 10 * 60 * 1000;
 

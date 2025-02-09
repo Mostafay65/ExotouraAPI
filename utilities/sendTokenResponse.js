@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import httpStatusText from "../helpers/httpStatusText";
+import httpStatusText from "../helpers/httpStatusText.js";
 
 export const signToken = (data, secretKey, expiresIn) => {
   return jwt.sign({ ...data }, secretKey, {

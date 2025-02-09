@@ -9,17 +9,18 @@ class Email {
     this.to = user.email;
     this.firstName = user.fullName.firstName;
     this.data = data;
-    this.from = `"Exotoura" <${process.env.EMAIL_FROM}>`;
+    this.from = process.env.EMAIL_FROM;
   }
 
   newTransport() {
     if (process.env.NODE_ENV === "production") {
       return nodemailer.createTransport({
-        host: "smtp.sendgrid.net",
+        host: "smtp.gmail.com",
         port: 587,
+        secure: false,
         auth: {
-          user: "apikey",
-          pass: process.env.SENDGRID_API_KEY,
+          user: process.env.SMTP_USER,
+          pass: process.env.SMTP_PASS,
         },
       });
     } else if (process.env.NODE_ENV === "development") {
@@ -49,7 +50,8 @@ class Email {
       from: this.from,
       to: this.to,
       subject,
-      text: this.data,
+      text: this.data?.toString(),
+      html: `<p>Your code is: ${this.data?.toString()}</p>`,
       // html,
       // text: convert(html, {
       //   wordwrap: 130,

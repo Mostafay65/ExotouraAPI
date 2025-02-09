@@ -1,8 +1,8 @@
 import jwt from "jsonwebtoken";
-import AppError from "../utilities/appError";
-import catchAsync from "../utilities/catchAsync";
+import AppError from "../utilities/appError.js";
+import catchAsync from "../utilities/catchAsync.js";
 import { promisify } from "util";
-import User from "../models/userModel";
+import User from "../models/userModel.js";
 
 const authorize = (...allowedRoles) =>
   catchAsync(async (req, res, next) => {
