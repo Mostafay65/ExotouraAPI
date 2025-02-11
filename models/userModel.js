@@ -4,128 +4,137 @@ import crypto from "crypto";
 import bcrypt from "bcrypt";
 import roles from "../helpers/roles.js";
 
-const userSchema = new mongoose.Schema({
-  email: {
-    type: String,
-    required: [true, "Email is required."],
-    unique: true,
-    lowercase: true,
-    validate: [validator.isEmail, "Please provide a valid email address."],
-  },
-  phoneNumber: {
-    type: String,
-    validate: [validator.isMobilePhone, "Please provide a valid phone number."],
-  },
-  fullName: {
-    type: {
-      firstName: {
-        type: String,
-        required: [true, "First name is required."],
-      },
-      lastName: {
-        type: String,
-        required: [true, "Last name is required."],
-      },
-    },
-    required: [true, "Full name is required."],
-  },
-  profilePicture: String,
-  role: {
-    type: String,
-    enum: {
-      // edit
-      values: [roles.admin, roles.user],
-      message: "Role is either: customer, vendor, delivery, admin.",
-    },
-    default: roles.user,
-  },
-  emailStatus: {
-    type: String,
-    enum: {
-      values: ["verified", "awaitingVerification"],
-      message: "Status is either: verified, awaitingVerification.",
-    },
-    default: "awaitingVerification",
-  },
+const baseOptions = {
+  discriminatorKey: "role", // Key to differentiate models
+  collection: "User", // All models use the same collection
+};
 
-  // location: {
-  //     country: {
-  //         type: String,
-  //         required: [true, "Country is required."],
-  //     },
-  //     city: {
-  //         type: String,
-  //         required: [true, "City is required."],
-  //     },
-  //     state: {
-  //         type: String,
-  //         required: [true, "State is required."],
-  //     },
-  //     street: {
-  //         type: String,
-  //         required: [true, "Street is required."],
-  //     },
-  // },
-  tempEmail: {
-    type: String,
-    validate: [
-      {
-        validator: function (value) {
-          return !!value;
+const userSchema = new mongoose.Schema(
+  {
+    email: {
+      type: String,
+      required: [true, "Email is required."],
+      unique: true,
+      lowercase: true,
+      validate: [validator.isEmail, "Please provide a valid email address."],
+    },
+    phoneNumber: {
+      type: String,
+      validate: [validator.isMobilePhone, "Please provide a valid phone number."],
+    },
+    fullName: {
+      type: {
+        firstName: {
+          type: String,
+          required: [true, "First name is required."],
         },
-        message: "Please provide email to update.",
-      },
-      {
-        validator: function (value) {
-          return validator.isEmail(value);
+        lastName: {
+          type: String,
+          required: [true, "Last name is required."],
         },
-        message: "Please provide a valid email address.",
       },
-      {
-        validator: function (value) {
-          return value !== this.email;
+      required: [true, "Full name is required."],
+    },
+    profilePicture: String,
+    role: {
+      type: String,
+      enum: {
+        // edit
+        values: [roles.admin, roles.user, roles.host],
+        message: `Role is either: ${roles.admin}, ${roles.user}, ${roles.host}.`,
+      },
+      default: roles.user,
+    },
+    emailStatus: {
+      type: String,
+      enum: {
+        values: ["verified", "awaitingVerification"],
+        message: "Status is either: verified, awaitingVerification.",
+      },
+      default: "awaitingVerification",
+    },
+
+    // location: {
+    //     country: {
+    //         type: String,
+    //         required: [true, "Country is required."],
+    //     },
+    //     city: {
+    //         type: String,
+    //         required: [true, "City is required."],
+    //     },
+    //     state: {
+    //         type: String,
+    //         required: [true, "State is required."],
+    //     },
+    //     street: {
+    //         type: String,
+    //         required: [true, "Street is required."],
+    //     },
+    // },
+    tempEmail: {
+      type: String,
+      validate: [
+        {
+          validator: function (value) {
+            return !!value;
+          },
+          message: "Please provide email to update.",
         },
-        message: "The new email cannot be the same as the current email.",
-      },
-      {
-        validator: async function (value) {
-          const existingEmail = await this.constructor.findOne({
-            email: value,
-          });
-          return !existingEmail;
+        {
+          validator: function (value) {
+            return validator.isEmail(value);
+          },
+          message: "Please provide a valid email address.",
         },
-        message: "The email already exists. Please use a different email.",
-      },
-    ],
-    select: false,
+        {
+          validator: function (value) {
+            return value !== this.email;
+          },
+          message: "The new email cannot be the same as the current email.",
+        },
+        {
+          validator: async function (value) {
+            const existingEmail = await this.constructor.findOne({
+              email: value,
+            });
+            return !existingEmail;
+          },
+          message: "The email already exists. Please use a different email.",
+        },
+      ],
+      select: false,
+    },
+    verificationCode: {
+      type: String,
+      select: false,
+    },
+    verificationCodeExpires: {
+      type: Date,
+      select: false,
+    },
+    password: {
+      type: String,
+      required: [true, "Password is required."],
+      minlength: [8, "Password must be at least 8 characters."],
+      select: false,
+    },
+    passwordChangedAt: {
+      type: Date,
+      select: false,
+    },
+    passwordResetToken: {
+      type: String,
+      select: false,
+    },
+    passwordResetExpires: {
+      type: Date,
+      select: false,
+    },
+    languagesSpoken: [{ type: String }], // Array of languages (e.g., ["English", "Arabic"])
   },
-  verificationCode: {
-    type: String,
-    select: false,
-  },
-  verificationCodeExpires: {
-    type: Date,
-    select: false,
-  },
-  password: {
-    type: String,
-    required: [true, "Password is required."],
-    minlength: [8, "Password must be at least 8 characters."],
-    select: false,
-  },
-  passwordChangedAt: {
-    type: Date,
-    select: false,
-  },
-  passwordResetToken: {
-    type: String,
-    select: false,
-  },
-  passwordResetExpires: {
-    type: Date,
-    select: false,
-  },
-});
+  baseOptions
+);
 
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
