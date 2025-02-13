@@ -46,7 +46,7 @@ export const signup = catchAsync(async (req, res, next) => {
     await session.abortTransaction();
     session.endSession();
 
-    return next(new AppError("Sorry, Try again later.", 500));
+    return next(new AppError(`Sorry, Try again later:  ${err.message} `, 500));
   }
 });
 
