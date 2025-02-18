@@ -94,5 +94,3 @@ export const deleteOne = (Model) =>
 
     res.status(204).json(null);
   });
-
-// TODO: Add isOwnerGet / isOwnerUpdate / isOwnerDelete when needed.

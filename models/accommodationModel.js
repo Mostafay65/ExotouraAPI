@@ -1,14 +1,37 @@
 import mongoose from "mongoose";
+
 const accommodationSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  description: { type: String, required: true, maxlength: 5000 },
-  price: { type: Number, required: true },
-  deposit: { type: Number, default: 0 },
-  rating: { type: Number, min: 0, max: 5, default: 0 },
-  
-  // TODO : should be update upon how we will store the location
-  location: { type: String, required: true },
-  maxCapacity: { type: Number, required: true },
+  name: {
+    type: String,
+    required: true,
+  },
+  description: {
+    type: String,
+    required: true,
+    maxlength: 5000,
+  },
+  price: {
+    type: Number,
+    required: true,
+  },
+  deposit: {
+    type: Number,
+    default: 0,
+  },
+  rating: {
+    type: Number,
+    min: 0,
+    max: 5,
+    default: 0,
+  },
+  location: {
+    type: String,
+    required: true,
+  },
+  maxCapacity: {
+    type: Number,
+    required: true,
+  },
   availability: {
     from: { type: Date, required: true },
     to: { type: Date, required: true },
@@ -41,7 +64,6 @@ const accommodationSchema = new mongoose.Schema({
       },
     },
   ],
-
   accessibilityFeatures: [
     {
       type: String,
@@ -83,18 +105,13 @@ const accommodationSchema = new mongoose.Schema({
       },
     },
   ],
-
-  paymentType: {
-    type: String,
-    enum: ["Cash", "Credit Card", "Online Payment"],
-    required: true,
-  },
-
   hoster: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Hoster",
     required: true,
   },
 });
+
 const Accommodation = mongoose.model("Accommodation", accommodationSchema);
+
 export default Accommodation;

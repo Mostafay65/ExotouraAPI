@@ -183,7 +183,6 @@ export const updatePassword = catchAsync(async (req, res, next) => {
   sendTokenResponse(user, 200, res);
 });
 
-// TODO: Edit later to check if the given email exist (use API).
 export const updateEmail = catchAsync(async (req, res, next) => {
   const user = await User.findById(req.user._id);
 
