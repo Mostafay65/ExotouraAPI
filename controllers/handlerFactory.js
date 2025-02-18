@@ -1,6 +1,7 @@
 import ApiFeatures from "../utilities/apiFeatures.js";
 import catchAsync from "../utilities/catchAsync.js";
 import AppError from "../utilities/appError.js";
+import httpStatusText from "../helpers/httpStatusText.js";
 
 const getModelName = (Model) => Model.modelName.toLowerCase();
 
@@ -30,7 +31,7 @@ export const getAll = (Model, popOptions) =>
       : `${getModelName(Model)}s`;
 
     res.status(200).json({
-      status: "success",
+      status: httpStatusText.SUCCESS,
       result: doc.length,
       total,
       data: {
@@ -50,7 +51,37 @@ export const getOne = (Model, popOptions) =>
     }
 
     res.status(200).json({
-      status: "success",
+      status: httpStatusText.SUCCESS,
+      data: {
+        [`${getModelName(Model)}`]: doc,
+      },
+    });
+  });
+
+export const isOnwerGetOne = (Model, popOptions) =>
+  catchAsync(async (req, res, next) => {
+    const { _id: onwerId } = req.user;
+    const { id } = req.params;
+
+    const filters = {
+      _id: id,
+      onwer: onwerId,
+    };
+    let query = Model.findOne(filters);
+    if (popOptions) query.populate(popOptions);
+    const doc = await query;
+
+    if (!doc) {
+      return next(
+        new AppError(
+          `No ${getModelName(Model)} found with that ID or access forbidden.`,
+          404
+        )
+      );
+    }
+
+    res.status(200).json({
+      status: httpStatusText.SUCCESS,
       data: {
         [`${getModelName(Model)}`]: doc,
       },
@@ -62,7 +93,7 @@ export const createOne = (Model) =>
     await Model.create(req.body);
 
     res.status(201).json({
-      status: "success",
+      status: httpStatusText.SUCCESS,
       message: `${getModelName(Model)} has been created successfully!`,
     });
   });
@@ -79,7 +110,36 @@ export const updateOne = (Model) =>
     }
 
     res.status(200).json({
-      status: "success",
+      status: httpStatusText.SUCCESS,
+      message: `${getModelName(Model)} has been updated successfully!`,
+    });
+  });
+
+export const isOwnerUpdateOne = (Model) =>
+  catchAsync(async (req, res, next) => {
+    const { _id: onwerId } = req.user;
+    const { id } = req.params;
+
+    const filters = {
+      _id: id,
+      onwer: onwerId,
+    };
+    const doc = Model.findOneAndUpdate(filters, req.body, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!doc) {
+      return next(
+        new AppError(
+          `No ${getModelName(Model)} found with that ID or access forbidden.`,
+          404
+        )
+      );
+    }
+
+    res.status(200).json({
+      status: httpStatusText.SUCCESS,
       message: `${getModelName(Model)} has been updated successfully!`,
     });
   });
@@ -87,6 +147,24 @@ export const updateOne = (Model) =>
 export const deleteOne = (Model) =>
   catchAsync(async (req, res, next) => {
     const doc = await Model.findByIdAndDelete(req.params.id);
+
+    if (!doc) {
+      return next(new AppError(`No ${getModelName(Model)} found with that ID.`, 404));
+    }
+
+    res.status(204).json(null);
+  });
+
+export const isOnwerDeleteOne = (Model) =>
+  catchAsync(async (req, res, next) => {
+    const { _id: onwerId } = req.user;
+    const { id } = req.params;
+
+    const filters = {
+      _id: id,
+      onwer: onwerId,
+    };
+    const doc = await Model.findOneAndDelete(filters);
 
     if (!doc) {
       return next(new AppError(`No ${getModelName(Model)} found with that ID.`, 404));

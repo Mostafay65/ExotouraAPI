@@ -105,7 +105,7 @@ const accommodationSchema = new mongoose.Schema({
       },
     },
   ],
-  hoster: {
+  owner: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Hoster",
     required: true,
