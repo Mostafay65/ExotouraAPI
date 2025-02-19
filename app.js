@@ -1,6 +1,7 @@
 import express from "express";
 import globalErrorHandler from "./controllers/errorController.js";
 import authRouter from "./routes/authRoutes.js";
+import accommodationRoutes from "./routes/accommodationRoutes.js";
 import cookieParser from "cookie-parser";
 import AppError from "./utilities/appError.js";
 
@@ -20,6 +21,7 @@ app.use(express.json());
 
 // Routes
 app.use("/auth", authRouter);
+app.use("/api/accommodation", accommodationRoutes);
 
 // Undefined routes
 app.all("*", async (req, res, next) => {
