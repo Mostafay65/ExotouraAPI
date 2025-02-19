@@ -1,4 +1,8 @@
 import mongoose from "mongoose";
+import spaceOffered from "../helpers/spaceOffered.js";
+import facilities from "../helpers/facilities.js";
+import accessibilityFeatures from "../helpers/accessibilityFeatures.js";
+import houseRules from "../helpers/houseRules.js";
 import LocationSchema from "./locationModel";
 
 const accommodationSchema = new mongoose.Schema({
@@ -40,7 +44,7 @@ const accommodationSchema = new mongoose.Schema({
   spaceOffered: {
     type: String,
     enum: {
-      values: ["Single Room", "Shared Room", "Entire Apartment", "Entire House"],
+      values: spaceOffered,
       message:
         "Space offered is either: Single Room, Shared Room, Entire Apartment, or Entire House.",
     },
@@ -50,17 +54,7 @@ const accommodationSchema = new mongoose.Schema({
     {
       type: String,
       enum: {
-        values: [
-          "WiFi",
-          "Parking",
-          "Swimming Pool",
-          "Air Conditioning",
-          "Kitchen",
-          "TV",
-          "Heating",
-          "Washer",
-          "Dryer",
-        ],
+        values: facilities,
         message: "Facility must be one of the predefined options",
       },
     },
@@ -69,19 +63,7 @@ const accommodationSchema = new mongoose.Schema({
     {
       type: String,
       enum: {
-        values: [
-          "Wheelchair Ramp",
-          "Elevator",
-          "Roll-in Shower",
-          "Grab Bars",
-          "Visual Doorbell",
-          "Braille Signage",
-          "Height-Adjusted Furniture",
-          "Medical Bed",
-          "Stair Lift",
-          "Accessible Bathroom",
-          "Handrails",
-        ],
+        values: accessibilityFeatures,
         message: "Accessibility feature must be one of the predefined options",
       },
     },
@@ -90,25 +72,14 @@ const accommodationSchema = new mongoose.Schema({
     {
       type: String,
       enum: {
-        values: [
-          "No Smoking",
-          "No Pets",
-          "No Parties",
-          "No Children",
-          "Quiet Hours",
-          "No Outside Visitors",
-          "No Food in Rooms",
-          "No Alcohol",
-          "Check-out Time",
-          "Keep Common Areas Clean",
-        ],
-        message: "House rule must be one of the predefined options",
+        values: houseRules,
+        message: "House rules must be one of the predefined options",
       },
     },
   ],
   owner: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Hoster",
+    ref: "User",
     required: true,
   },
 });

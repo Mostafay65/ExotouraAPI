@@ -1,6 +1,7 @@
 import express from "express";
 import globalErrorHandler from "./controllers/errorController.js";
 import authRouter from "./routes/authRoutes.js";
+import accommodationRoutes from "./routes/accommodationRoutes.js";
 import userRouter from "./routes/userRoutes.js";
 import cookieParser from "cookie-parser";
 import AppError from "./utilities/appError.js";
@@ -21,6 +22,7 @@ app.use(express.json());
 
 // Routes
 app.use("/auth", authRouter);
+app.use("/accommodation", accommodationRoutes);
 app.use("/users", userRouter);
 
 // Undefined routes

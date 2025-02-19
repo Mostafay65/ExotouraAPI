@@ -42,7 +42,7 @@ export const getAll = (Model, popOptions) =>
 
 export const getOne = (Model, popOptions) =>
   catchAsync(async (req, res, next) => {
-    let query = Model.findById(req.params.id);
+    let query = Model.findById(req.params.id).select("-__v");
     if (popOptions) query.populate(popOptions);
     const doc = await query;
 
@@ -152,17 +152,20 @@ export const deleteOne = (Model) =>
       return next(new AppError(`No ${getModelName(Model)} found with that ID.`, 404));
     }
 
-    res.status(204).json(null);
+    res.status(410).json({
+      status: httpStatusText.SUCCESS,
+      message: `${getModelName(Model)} has been deleted successfully.`,
+    });
   });
 
 export const isOnwerDeleteOne = (Model) =>
   catchAsync(async (req, res, next) => {
-    const { _id: onwerId } = req.user;
+    const { _id: ownerId } = req.user;
     const { id } = req.params;
 
     const filters = {
       _id: id,
-      onwer: onwerId,
+      owner: ownerId,
     };
     const doc = await Model.findOneAndDelete(filters);
 
@@ -170,5 +173,8 @@ export const isOnwerDeleteOne = (Model) =>
       return next(new AppError(`No ${getModelName(Model)} found with that ID.`, 404));
     }
 
-    res.status(204).json(null);
+    return res.status(410).json({
+      status: httpStatusText.SUCCESS,
+      message: `${getModelName(Model)} has been deleted successfully.`,
+    });
   });
