@@ -5,8 +5,8 @@ import { fileURLToPath } from "url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 class Email {
-  constructor(user, data) {
-    this.to = user.email;
+  constructor(user, data, email) {
+    this.to = email ? email : user.email;
     this.firstName = user.fullName.firstName;
     this.data = data;
     this.from = process.env.EMAIL_FROM;
