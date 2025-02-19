@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import LocationSchema from "./locationModel";
 
 const accommodationSchema = new mongoose.Schema({
   name: {
@@ -25,8 +26,8 @@ const accommodationSchema = new mongoose.Schema({
     default: 0,
   },
   location: {
-    type: String,
-    required: true,
+    type: LocationSchema,
+    required: [true, "Location is required"],
   },
   maxCapacity: {
     type: Number,

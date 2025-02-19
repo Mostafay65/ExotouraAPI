@@ -3,6 +3,7 @@ import validator from "validator";
 import crypto from "crypto";
 import bcrypt from "bcrypt";
 import roles from "../helpers/roles.js";
+import LocationSchema from "./locationModel.js";
 
 const baseOptions = {
   discriminatorKey: "role", // Key to differentiate models
@@ -36,6 +37,11 @@ const userSchema = new mongoose.Schema(
       required: [true, "Full name is required."],
     },
     profilePicture: String,
+    location: {
+      type: LocationSchema,
+    },
+    languagesSpoken: [{ type: String }], // Array of languages (e.g., ["English", "Arabic"])
+    //
     role: {
       type: String,
       enum: {
@@ -53,25 +59,6 @@ const userSchema = new mongoose.Schema(
       },
       default: "awaitingVerification",
     },
-
-    // location: {
-    //     country: {
-    //         type: String,
-    //         required: [true, "Country is required."],
-    //     },
-    //     city: {
-    //         type: String,
-    //         required: [true, "City is required."],
-    //     },
-    //     state: {
-    //         type: String,
-    //         required: [true, "State is required."],
-    //     },
-    //     street: {
-    //         type: String,
-    //         required: [true, "Street is required."],
-    //     },
-    // },
     tempEmail: {
       type: String,
       validate: [
@@ -131,10 +118,11 @@ const userSchema = new mongoose.Schema(
       type: Date,
       select: false,
     },
-    languagesSpoken: [{ type: String }], // Array of languages (e.g., ["English", "Arabic"])
   },
   baseOptions
 );
+
+userSchema.index({ location: "2dsphere" });
 
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();

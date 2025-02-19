@@ -1,4 +1,3 @@
-- location: should be update upon how we will store the location.
 - external login (google).
 - add limit rate to restrict the number of requests per user
 - picture for user.
