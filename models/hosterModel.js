@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
-import User from "./userModel";
-import roles from "../helpers/roles";
+import User from "./userModel.js";
+import roles from "../helpers/roles.js";
 
-const hosterSchema = User.discriminator(
+const Hoster = User.discriminator(
   roles.hoster,
   new mongoose.Schema({
     profileDescription: {
@@ -22,5 +22,5 @@ const hosterSchema = User.discriminator(
     },
   })
 );
-const Hoster = mongoose.model("Hoster", hosterSchema);
+
 export default Hoster;
