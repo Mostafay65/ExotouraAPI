@@ -19,14 +19,9 @@ const getAccommodationById = getOne(Accommodation, {
 });
 
 const createAccommodation = catchAsync(async (req, res, next) => {
-  // Validate availability dates
   if (req.body.availability) {
     const from = new Date(req.body.availability.from);
     const to = new Date(req.body.availability.to);
-
-    if (isNaN(from.getTime()) || isNaN(to.getTime())) {
-      return next(new AppError("Invalid date format for availability", 400));
-    }
 
     if (from >= to) {
       return next(new AppError("Check-out date must be after check-in date", 400));
@@ -51,7 +46,7 @@ const createAccommodation = catchAsync(async (req, res, next) => {
     "accessibilityFeatures",
     "houseRules"
   );
-  accommodation.owner = req.user.id;
+  accommodation.owner = req.user._id;
 
   const newAccommodation = await Accommodation.create(accommodation);
 

@@ -112,19 +112,22 @@ export const updateOne = (Model) =>
     res.status(200).json({
       status: httpStatusText.SUCCESS,
       message: `${getModelName(Model)} has been updated successfully!`,
+      data: {
+        [`${getModelName(Model)}`]: doc,
+      },
     });
   });
 
 export const isOwnerUpdateOne = (Model) =>
   catchAsync(async (req, res, next) => {
-    const { _id: onwerId } = req.user;
+    const { _id: ownerId } = req.user;
     const { id } = req.params;
 
     const filters = {
       _id: id,
-      onwer: onwerId,
+      owner: ownerId,
     };
-    const doc = Model.findOneAndUpdate(filters, req.body, {
+    const doc = await Model.findOneAndUpdate(filters, req.body, {
       new: true,
       runValidators: true,
     });
@@ -141,6 +144,9 @@ export const isOwnerUpdateOne = (Model) =>
     res.status(200).json({
       status: httpStatusText.SUCCESS,
       message: `${getModelName(Model)} has been updated successfully!`,
+      data: {
+        [`${getModelName(Model)}`]: doc,
+      },
     });
   });
 

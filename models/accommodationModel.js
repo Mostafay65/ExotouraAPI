@@ -3,7 +3,7 @@ import spaceOffered from "../helpers/spaceOffered.js";
 import facilities from "../helpers/facilities.js";
 import accessibilityFeatures from "../helpers/accessibilityFeatures.js";
 import houseRules from "../helpers/houseRules.js";
-import LocationSchema from "./locationModel";
+import LocationSchema from "./locationModel.js";
 
 const accommodationSchema = new mongoose.Schema({
   name: {
@@ -75,6 +75,12 @@ const accommodationSchema = new mongoose.Schema({
         values: houseRules,
         message: "House rules must be one of the predefined options",
       },
+    },
+  ],
+  images: [
+    {
+      type: String,
+      required: true,
     },
   ],
   owner: {
