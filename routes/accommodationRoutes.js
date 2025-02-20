@@ -4,6 +4,7 @@ import express from "express";
 import roles from "../helpers/roles.js";
 import multer from "multer";
 import restrictTo from "../middleware/restrictTo.js";
+import { filterAccommodationBody } from "../middleware/accommodationHandelers.js";
 
 const router = express.Router();
 
@@ -25,8 +26,8 @@ router.get("/:id", accommodationController.getAccommodationById);
 
 router.use(Authorize, restrictTo(roles.hoster));
 
-router.post("/", accommodationController.createAccommodation);
-router.patch("/:id", accommodationController.updateAccommodation);
+router.post("/", filterAccommodationBody, accommodationController.createAccommodation);
+router.patch("/:id", filterAccommodationBody, accommodationController.updateAccommodation);
 router.delete("/:id", accommodationController.deleteAccommodation);
 
 export default router;
