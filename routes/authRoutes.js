@@ -23,7 +23,7 @@ router.get("/refresh", refreshToken);
 router.patch("/resetpassword/:code", resetPassword);
 router.post("/forgotpassword", forgotPassword);
 
-router.use(authorize());
+router.use(authorize);
 
 router.patch("/updateemail", updateEmail);
 router.patch("/updatepassword", updatePassword);
