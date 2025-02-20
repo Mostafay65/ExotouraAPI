@@ -15,8 +15,7 @@ export const app = express();
 app.use(cookieParser());
 
 // Server static files
-app.use(express.static(join(__dirname, "/uploads")));
-
+app.use("/uploads", express.static(join(__dirname, "uploads")));
 // Body parser
 app.use(express.json());
 
