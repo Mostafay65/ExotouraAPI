@@ -3,6 +3,7 @@ import Authorize from "../middleware/authorize.js";
 import express from "express";
 import roles from "../helpers/roles.js";
 import multer from "multer";
+import restrictTo from "../middleware/restrictTo.js";
 
 const router = express.Router();
 
@@ -22,7 +23,7 @@ const upload = multer({ storage: storage });
 router.get("/", accommodationController.getAllAccommodations);
 router.get("/:id", accommodationController.getAccommodationById);
 
-app.use(Authorize, (roles.hoster));
+router.use(Authorize, restrictTo(roles.hoster));
 
 router.post("/", accommodationController.createAccommodation);
 router.patch("/:id", accommodationController.updateAccommodation);
