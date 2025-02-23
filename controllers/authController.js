@@ -9,6 +9,7 @@ import jwt from "jsonwebtoken";
 import { promisify } from "util";
 import mongoose from "mongoose";
 import httpStatusText from "../helpers/httpStatusText.js";
+import googleService from "../services/googleService.js";
 
 export const signup = catchAsync(async (req, res, next) => {
   // Start a session and transaction.
@@ -52,6 +53,35 @@ export const signup = catchAsync(async (req, res, next) => {
 
     return next(err);
   }
+});
+
+export const googleTokenAuth = catchAsync(async (req, res, next) => {
+  const { googleAccessToken } = req.body;
+  if (!googleAccessToken) {
+    return next(new AppError("Please provide Google access token", 400));
+  }
+
+  const googleUser = await googleService.getUserInfo(googleAccessToken);
+  if (!googleUser) {
+    return next(new AppError("Google user not found", 404));
+  }
+  // Find or create user
+  let user = await User.findOne({ email: googleUser.email });
+
+  if (!user) {
+    user = await User.create({
+      email: googleUser.email,
+      fullName: {
+        firstName: googleUser.given_name,
+        lastName: googleUser.family_name,
+      },
+      profilePicture: googleUser.picture,
+      emailStatus: googleUser.email_verified ? "verified" : "awaitingVerification",
+      password: crypto.randomBytes(32).toString("hex"), // Random secure password
+    });
+  }
+
+  sendTokenResponse(user, 200, res, "Google authentication successful");
 });
 
 export const resendVerificationCode = catchAsync(async (req, res, next) => {
