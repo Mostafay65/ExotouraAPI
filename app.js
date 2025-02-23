@@ -5,13 +5,13 @@ import accommodationRoutes from "./routes/accommodationRoutes.js";
 import userRouter from "./routes/userRoutes.js";
 import cookieParser from "cookie-parser";
 import AppError from "./utilities/appError.js";
-
+import cors from "cors";
 import { dirname, join } from "path";
 import { fileURLToPath } from "url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 export const app = express();
-
+app.use(cors());
 app.use(cookieParser());
 
 // Server static files
