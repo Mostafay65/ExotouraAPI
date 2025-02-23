@@ -10,6 +10,7 @@ import {
   updateEmail,
   updatePassword,
   logout,
+  googleTokenAuth,
 } from "../controllers/authController.js";
 import authorize from "../middleware/authorize.js";
 
@@ -22,6 +23,7 @@ router.post("/login", signin);
 router.get("/refresh", refreshToken);
 router.patch("/resetpassword/:code", resetPassword);
 router.post("/forgotpassword", forgotPassword);
+router.post("/google/token", googleTokenAuth);
 
 router.use(authorize);
 
