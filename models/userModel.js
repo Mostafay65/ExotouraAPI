@@ -46,8 +46,8 @@ const userSchema = new mongoose.Schema(
       type: String,
       enum: {
         // edit
-        values: [roles.admin, roles.user, roles.host],
-        message: `Role is either: ${roles.admin}, ${roles.user}, ${roles.host}.`,
+        values: [roles.admin, roles.user, roles.hoster],
+        message: `Role is either: ${roles.admin}, ${roles.user}, ${roles.hoster}.`,
       },
       default: roles.user,
     },
