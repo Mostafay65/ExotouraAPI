@@ -14,8 +14,13 @@ import {
   setUserId,
 } from "../middleware/userHandlers.js";
 import checkPassword from "../middleware/checkPassword.js";
+import accommodationRoutes from "./accommodationRoutes.js";
+import accommodationRequestRoutes from "./accommodationRequestRoutes.js";
 
 const router = express.Router();
+
+router.use("/:id/accommodation", accommodationRoutes);
+router.use("/:id/requests", accommodationRequestRoutes);
 
 // Authentication
 router.use(authorize);

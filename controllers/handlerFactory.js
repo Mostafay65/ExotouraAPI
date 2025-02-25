@@ -5,11 +5,9 @@ import httpStatusText from "../helpers/httpStatusText.js";
 
 const getModelName = (Model) => Model.modelName.toLowerCase();
 
-export const getAll = (Model, popOptions) =>
+export const getAll = (Model, popOptions, filter) =>
   catchAsync(async (req, res, next) => {
-    // adding filters later
-    let filter = {};
-
+    ////////// adding filters later
     const features = new ApiFeatures(Model.find(filter), req.query)
       .filter()
       .sort()

@@ -32,6 +32,8 @@ const handleJWTExpiredError = (req) => {
   return new AppError("Your token has expired. Please log in again.", 401);
 };
 
+const handleFileSizeLimitError = () => new AppError("File size exceeds the limit of 1MB!", 400);
+
 const sendErrorProd = (err, res) => {
   if (err.isOperational) {
     res.status(err.statusCode).json({
@@ -74,6 +76,8 @@ const globalErrorHandler = (err, req, res, next) => {
     // JWT errors
     if (error.name === "JsonWebTokenError") error = handleJTWError();
     if (error.name === "TokenExpiredError") error = handleJWTExpiredError(req);
+
+    if (error.code === "LIMIT_FILE_SIZE") error = handleFileSizeLimitError();
 
     sendErrorProd(error, res);
   }
