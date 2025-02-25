@@ -1,4 +1,5 @@
 import Accommodation from "../models/accommodationModel.js";
+import catchAsync from "../utilities/catchAsync.js";
 import {
   getAll,
   getOne,
@@ -12,7 +13,11 @@ const popOptions = {
   select: "profileDescription rating status email phoneNumber fullName profilePicture ",
 };
 
-export const getAllAccommodations = getAll(Accommodation);
+export const getAllAccommodations = catchAsync(async (req, res, next) => {
+  const filter = {};
+  if (req.params.id) filter.owner = req.params.id;
+  getAll(Accommodation, "", filter)(req, res, next);
+});
 
 export const getAccommodationById = getOne(Accommodation, popOptions);
 

@@ -1,4 +1,7 @@
-- external login (google).
 - add limit rate to restrict the number of requests per user
-- picture for user.
 - revoke the token on logout.
+- send filess as chunks
+- await for file upload
+- merge model hndler with controller
+- update user image
+- 
