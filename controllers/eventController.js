@@ -19,6 +19,7 @@ const popOptions = {
   select: "profileDescription rating status email phoneNumber fullName profilePicture ",
 };
 
+
 export const getEventById = getOne(Event , popOptions);
 
 export const createEvent = createOne(Event);
