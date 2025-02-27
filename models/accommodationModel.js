@@ -89,7 +89,6 @@ const accommodationSchema = new mongoose.Schema({
     required: true,
   },
 });
-
 const Accommodation = mongoose.model("Accommodation", accommodationSchema);
 
 export default Accommodation;
