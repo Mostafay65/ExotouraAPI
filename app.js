@@ -9,6 +9,7 @@ import AppError from "./utilities/appError.js";
 import cors from "cors";
 import { dirname, join } from "path";
 import { fileURLToPath } from "url";
+import eventRouter from "./routes/eventRoutes.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 export const app = express();
@@ -25,6 +26,7 @@ app.use("/auth", authRouter);
 app.use("/accommodation", accommodationRoutes);
 app.use("/users", userRouter);
 app.use("/accommodationrequest", accommodationRequestRoutes);
+app.use("/event", eventRouter);
 
 // Undefined routes
 app.all("*", async (req, res, next) => {

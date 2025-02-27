@@ -60,7 +60,6 @@ export const googleTokenAuth = catchAsync(async (req, res, next) => {
   if (!googleAccessToken) {
     return next(new AppError("Please provide Google access token", 400));
   }
-
   const googleUser = await googleService.getUserInfo(googleAccessToken);
   if (!googleUser) {
     return next(new AppError("Google user not found", 404));
