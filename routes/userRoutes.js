@@ -16,10 +16,11 @@ import {
 import checkPassword from "../middleware/checkPassword.js";
 import accommodationRoutes from "./accommodationRoutes.js";
 import accommodationRequestRoutes from "./accommodationRequestRoutes.js";
-
+import eventRoutes from "./eventRoutes.js";
 const router = express.Router();
 
 router.use("/:id/accommodation", accommodationRoutes);
+router.use("/:id/event", eventRoutes);
 router.use("/:id/requests", accommodationRequestRoutes);
 
 // Authentication
