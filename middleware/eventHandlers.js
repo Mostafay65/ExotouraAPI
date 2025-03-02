@@ -18,7 +18,7 @@ export const filterEvent = (req, res, next) => {
       to: req.body.to,
     };
   }
-  
+
   if (req.body.location) {
     req.body.location = {
       coordinates: req.body.location.split(",").map((coord) => Number(coord.trim())),
@@ -30,29 +30,15 @@ export const filterEvent = (req, res, next) => {
       .split(",")
       .map((item) => item.trim());
 
-  if (req.method === "POST") req.body._id = new mongoose.Types.ObjectId();
-  else req.body._id = req.params.id;
-
-  req.body.images = [];
-
-  if (req.imageUploadPromises?.length > 0) {
-    req.body.images = req.files.map(() => "uploading...");
-
-    setImmediate(async () => {
-      try {
-        const uploadedUrls = await Promise.all(req.imageUploadPromises);
-        await Event.findByIdAndUpdate(req.body._id, { images: uploadedUrls });
-      } catch (error) {
-        await Event.findByIdAndUpdate(req.body._id, {
-          images: [`❌ Image upload failed: ${error.message}`],
-        });
-      }
-    });
-  }
+  if (req.files.length !== 0) req.body.images = [];
+  req.files.forEach((file) => {
+    if (file && file.path) {
+      req.body.images.push(file.path);
+    }
+  });
 
   req.body = filterBody(
     req.body,
-    "_id",
     "name",
     "description",
     "price",
