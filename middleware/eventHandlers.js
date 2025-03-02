@@ -4,6 +4,7 @@ import Event from "../models/eventModel.js";
 import mongoose from "mongoose";
 
 export const filterEvent = (req, res, next) => {
+  // Date
   if (req.body.from && req.body.to) {
     if (req.body.from >= req.body.to) {
       return next(new AppError("Check-out date must be after check-in date", 400));
@@ -19,11 +20,14 @@ export const filterEvent = (req, res, next) => {
     };
   }
 
+  // Location
   if (req.body.location) {
     req.body.location = {
       coordinates: req.body.location.split(",").map((coord) => Number(coord.trim())),
     };
   }
+
+  // facilities, accessibilityFeatures, houseRules
 
   if (req.body.accessibilityFeatures)
     req.body.accessibilityFeatures = req.body.accessibilityFeatures
