@@ -30,12 +30,13 @@ export const filterAdminBody = (req, res, next) => {
       };
     }
   }
-  
+
   req.body = filterBody(
     req.body,
     "email",
     "phoneNumber",
     "fullName",
+    "bio",
     "profilePicture",
     "location",
     "languagesSpoken",
@@ -84,6 +85,7 @@ export const filterUserBody = (req, res, next) => {
     req.body,
     "phoneNumber",
     "fullName",
+    "bio",
     "profilePicture",
     "location",
     "languagesSpoken"

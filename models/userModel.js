@@ -36,6 +36,7 @@ const userSchema = new mongoose.Schema(
       },
       required: [true, "Full name is required."],
     },
+    bio: String,
     profilePicture: String,
     location: {
       type: LocationSchema,
