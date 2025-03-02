@@ -17,6 +17,8 @@ import checkPassword from "../middleware/checkPassword.js";
 import accommodationRoutes from "./accommodationRoutes.js";
 import accommodationRequestRoutes from "./accommodationRequestRoutes.js";
 import eventRoutes from "./eventRoutes.js";
+import upload from "../middleware/imageUploader.js";
+
 const router = express.Router();
 
 router.use("/:id/accommodation", accommodationRoutes);
@@ -29,13 +31,17 @@ router.use(authorize);
 router
   .route("/me")
   .get(setUserId, getUser)
-  .patch(setUserId, filterUserBody, updateUser)
+  .patch(upload.single("profilePicture"), setUserId, filterUserBody, updateUser)
   .delete(checkPassword, setUserId, deleteUser);
 
 // Administration
 router.use(restrictTo(roles.admin));
 
 router.get("/", getAllUsers);
-router.route("/:id").get(getUser).patch(filterAdminBody, updateUser).delete(deleteUser);
+router
+  .route("/:id")
+  .get(getUser)
+  .patch(upload.single("profilePicture"), filterAdminBody, updateUser)
+  .delete(deleteUser);
 
 export default router;

@@ -7,6 +7,30 @@ export const setUserId = (req, res, next) => {
 };
 
 export const filterAdminBody = (req, res, next) => {
+  if (req.file) {
+    req.body.profilePicture = req.file.path;
+  }
+
+  if (req.body.location) {
+    req.body.location = {
+      coordinates: req.body.location.split(",").map((coord) => Number(coord.trim())),
+    };
+  }
+  if (req.body.languagesSpoken) {
+    req.body.languagesSpoken = req.body.languagesSpoken.split(",");
+  }
+
+  if (req.body.firstName) {
+    if (!req.body.lastName) {
+      return next(new AppError("Please provide your last name.", 400));
+    } else {
+      req.body.fullName = {
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
+      };
+    }
+  }
+  
   req.body = filterBody(
     req.body,
     "email",
@@ -31,6 +55,30 @@ export const filterUserBody = (req, res, next) => {
         400
       )
     );
+
+  if (req.file) {
+    req.body.profilePicture = req.file.path;
+  }
+
+  if (req.body.location) {
+    req.body.location = {
+      coordinates: req.body.location.split(",").map((coord) => Number(coord.trim())),
+    };
+  }
+  if (req.body.languagesSpoken) {
+    req.body.languagesSpoken = req.body.languagesSpoken.split(",");
+  }
+
+  if (req.body.firstName) {
+    if (!req.body.lastName) {
+      return next(new AppError("Please provide your last name.", 400));
+    } else {
+      req.body.fullName = {
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
+      };
+    }
+  }
 
   req.body = filterBody(
     req.body,

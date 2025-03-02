@@ -1,7 +1,5 @@
 import filterBody from "../utilities/filterBody.js";
 import AppError from "../utilities/appError.js";
-import Accommodation from "../models/accommodationModel.js";
-import mongoose from "mongoose";
 
 export const filterAccommodationBody = (req, res, next) => {
   if (req.body.from && req.body.to) {
@@ -33,33 +31,15 @@ export const filterAccommodationBody = (req, res, next) => {
   if (req.body.houseRules)
     req.body.houseRules = req.body.houseRules.split(",").map((item) => item.trim());
 
-  if (req.method === "POST") req.body._id = new mongoose.Types.ObjectId();
-  else req.body._id = req.params.id;
-  req.body.images = [];
-
-  if (req.imageUploadPromises.length > 0) {
-    // Generate placeholder values for images (temporary)
-    req.body.images = req.files.map(() => "uploading...");
-
-    // Process image uploads in the background AFTER response
-    setImmediate(async () => {
-      try {
-        const uploadedUrls = await Promise.all(req.imageUploadPromises);
-
-        await Accommodation.findByIdAndUpdate(req.body._id, {
-          images: uploadedUrls,
-        });
-      } catch (error) {
-        await Accommodation.findByIdAndUpdate(req.body._id, {
-          images: [`❌ Image upload failed: ${error.message}`],
-        });
-      }
-    });
-  }
+  if (req.files.length !== 0) req.body.images = [];
+  req.files.forEach((file) => {
+    if (file && file.path) {
+      req.body.images.push(file.path);
+    }
+  });
 
   req.body = filterBody(
     req.body,
-    "_id",
     "name",
     "description",
     "price",
