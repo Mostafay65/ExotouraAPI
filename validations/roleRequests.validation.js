@@ -1,5 +1,6 @@
 import Joi from "joi";
 import roles from "../helpers/roles.js";
+import { generalFeilds } from "../middleware/validation.js";
 
 export const attachmentSchema = Joi.object({
   fieldname: Joi.string().valid("attachments").required(),
@@ -15,9 +16,11 @@ export const attachmentSchema = Joi.object({
     .required(),
 });
 
-export const requestRoleSchema = Joi.object()
-  .keys({
-    roleType: Joi.string().valid(roles.hoster , roles.organizer).required(),  
-    attachments: Joi.array().items(attachmentSchema).min(2).max(10),
-  })
-  
+export const requestRoleSchema = Joi.object().keys({
+  roleType: Joi.string().valid(roles.hoster, roles.organizer).required(),
+  attachments: Joi.array().items(attachmentSchema).min(2).max(10).required(),
+});
+
+export const idSchema = Joi.object().keys({
+  id: generalFeilds.id.required(),
+});
