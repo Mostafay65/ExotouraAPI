@@ -19,6 +19,7 @@ const roleRequestSchema = new mongoose.Schema({
   },
   attachments: {
     type: [String],
+    required: true,
   },
 });
 
