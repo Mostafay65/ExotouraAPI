@@ -10,6 +10,7 @@ import cors from "cors";
 import { dirname, join } from "path";
 import { fileURLToPath } from "url";
 import eventRouter from "./routes/eventRoutes.js";
+import roleRequestRouter from "./routes/roleRequestRoutes.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 export const app = express();
@@ -27,6 +28,7 @@ app.use("/accommodation", accommodationRoutes);
 app.use("/users", userRouter);
 app.use("/accommodationrequest", accommodationRequestRoutes);
 app.use("/event", eventRouter);
+app.use("/role-request" ,roleRequestRouter )
 
 // Undefined routes
 app.all("*", async (req, res, next) => {
