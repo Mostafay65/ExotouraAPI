@@ -2,4 +2,4 @@
 - revoke the token on logout.
 - send filess as chunks
 - merge model hndler with controller
-- user bio
+- add dispute logic for payments.

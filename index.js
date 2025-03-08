@@ -2,6 +2,7 @@ import "dotenv/config";
 import { app } from "./app.js";
 import connectDB from "./configurations/databaseConnection.js";
 import mongoose from "mongoose";
+import "./jobs/paymentReauthorization.js";
 
 const PORT = process.env.PORT || 3000;
 
