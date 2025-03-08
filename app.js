@@ -3,6 +3,9 @@ import globalErrorHandler from "./controllers/errorController.js";
 import authRouter from "./routes/authRoutes.js";
 import accommodationRoutes from "./routes/accommodationRoutes.js";
 import userRouter from "./routes/userRoutes.js";
+import paymentRouter from "./routes/paymentRoutes.js";
+import webhookRouter from "./routes/webhookRoutes.js";
+import transactionRouter from "./routes/transactionRoutes.js";
 import cookieParser from "cookie-parser";
 import AppError from "./utilities/appError.js";
 import cors from "cors";
@@ -11,11 +14,16 @@ import { fileURLToPath } from "url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 export const app = express();
+
 app.use(cors());
 app.use(cookieParser());
 
+// Mount webhook route
+app.use("/webhook", webhookRouter);
+
 // Server static files
 app.use("/uploads", express.static(join(__dirname, "uploads")));
+
 // Body parser
 app.use(express.json());
 
@@ -23,6 +31,8 @@ app.use(express.json());
 app.use("/auth", authRouter);
 app.use("/accommodation", accommodationRoutes);
 app.use("/users", userRouter);
+app.use("/payment", paymentRouter);
+app.use("/transaction", transactionRouter);
 
 // Undefined routes
 app.all("*", async (req, res, next) => {

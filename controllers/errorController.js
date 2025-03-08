@@ -1,5 +1,6 @@
 import AppError from "../utilities/appError.js";
 import httpStatusText from "../helpers/httpStatusText.js";
+import Stripe from "stripe";
 
 const handleCastErrorDB = (err) => {
   const message = `Invalid ${err.path}: ${err.value}.`;
@@ -31,6 +32,8 @@ const handleJWTExpiredError = (req) => {
   }
   return new AppError("Your token has expired. Please log in again.", 401);
 };
+
+const handleStripeError = (error) => new AppError(error.message, error.statusCode);
 
 const sendErrorProd = (err, res) => {
   if (err.isOperational) {
@@ -74,6 +77,8 @@ const globalErrorHandler = (err, req, res, next) => {
     // JWT errors
     if (error.name === "JsonWebTokenError") error = handleJTWError();
     if (error.name === "TokenExpiredError") error = handleJWTExpiredError(req);
+
+    if (error instanceof Stripe.errors.StripeError) error = handleStripeError(error);
 
     sendErrorProd(error, res);
   }

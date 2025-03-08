@@ -15,7 +15,7 @@ const userSchema = new mongoose.Schema(
     email: {
       type: String,
       required: [true, "Email is required."],
-      unique: [true, "Email already exists"],
+      unique: true,
       lowercase: true,
       validate: [validator.isEmail, "Please provide a valid email address."],
     },
@@ -45,9 +45,8 @@ const userSchema = new mongoose.Schema(
     role: {
       type: String,
       enum: {
-        // edit
-        values: [roles.admin, roles.user, roles.hoster],
-        message: `Role is either: ${roles.admin}, ${roles.user}, ${roles.hoster}.`,
+        values: [...Object.values(roles)],
+        message: `Role is either: ${Object.values(roles).join(", ")}.`,
       },
       default: roles.user,
     },
@@ -118,6 +117,8 @@ const userSchema = new mongoose.Schema(
       type: Date,
       select: false,
     },
+    stripeAccountId: String,
+    stripeCustomerId: String,
   },
   baseOptions
 );

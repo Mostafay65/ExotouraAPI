@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon index",
-    "start:prod": "set NODE_ENV=production&&nodemon index.js"
+    "start:prod": "set NODE_ENV=production&&nodemon index.js",
+    "debug": "ndb index.js"
   },
   "repository": {
     "type": "git",
@@ -25,6 +26,7 @@
     "cloudinary": "^1.41.3",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
+    "cron": "^4.1.0",
     "dotenv": "^16.4.7",
     "ejs": "^3.1.10",
     "express": "^4.21.2",
@@ -35,6 +37,7 @@
     "multer-storage-cloudinary": "^4.0.0",
     "nodemailer": "^6.10.0",
     "nodemon": "^3.1.9",
+    "stripe": "^17.6.0",
     "validator": "^13.12.0"
   }
 }

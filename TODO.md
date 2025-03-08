@@ -2,3 +2,4 @@
 - add limit rate to restrict the number of requests per user
 - picture for user.
 - revoke the token on logout.
+- add dispute logic for payments.
