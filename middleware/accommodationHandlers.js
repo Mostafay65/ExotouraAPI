@@ -2,22 +2,6 @@ import filterBody from "../utilities/filterBody.js";
 import AppError from "../utilities/appError.js";
 
 export const filterAccommodationBody = (req, res, next) => {
-  // Date
-  if (req.body.from && req.body.to) {
-    if (req.body.from >= req.body.to) {
-      return next(new AppError("Check-out date must be after check-in date", 400));
-    }
-
-    if (req.body.from < new Date().setHours(0, 0, 0, 0)) {
-      return next(new AppError("Check-in date cannot be in the past", 400));
-    }
-
-    req.body.availability = {
-      from: req.body.from,
-      to: req.body.to,
-    };
-  }
-
   // Location
   if (req.body.location) {
     req.body.location = {
@@ -52,7 +36,9 @@ export const filterAccommodationBody = (req, res, next) => {
     "deposit",
     "location",
     "maxCapacity",
-    "availability",
+    "beds",
+    "bedrooms",
+    "bathrooms",
     "spaceOffered",
     "facilities",
     "accessibilityFeatures",
