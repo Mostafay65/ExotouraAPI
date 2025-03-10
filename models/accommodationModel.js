@@ -37,9 +37,17 @@ const accommodationSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
-  availability: {
-    from: { type: Date, required: true },
-    to: { type: Date, required: true },
+  beds: {
+    type: Number,
+    required: true,
+  },
+  bedrooms: {
+    type: Number,
+    required: true,
+  },
+  bathrooms: {
+    type: Number,
+    required: true,
   },
   spaceOffered: {
     type: String,

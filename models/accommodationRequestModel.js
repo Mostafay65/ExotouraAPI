@@ -11,6 +11,14 @@ const accommodationRequestSchema = new mongoose.Schema({
     ref: "Accommodation",
     required: true,
   },
+  from: {
+    type: Date,
+    required: true,
+  },
+  to: {
+    type: Date,
+    required: true,
+  },
   status: {
     type: String,
     enum: [
@@ -24,7 +32,7 @@ const accommodationRequestSchema = new mongoose.Schema({
 });
 
 const AccommodationRequest = mongoose.model(
-  "AccommodationRequest",
+  "Accommodation Request",
   accommodationRequestSchema
 );
 
