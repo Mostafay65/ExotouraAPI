@@ -22,7 +22,6 @@ import upload from "../middleware/imageUploader.js";
 const router = express.Router();
 
 router.use("/:id/accommodation", accommodationRoutes);
-router.use("/:id/event", eventRoutes);
 router.use("/:id/requests", accommodationRequestRoutes);
 
 // Authentication

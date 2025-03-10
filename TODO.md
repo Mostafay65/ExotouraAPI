@@ -4,3 +4,4 @@
 - merge model hndler with controller
 - multiple roles for users
 - add disability for users
+- add dispute logic for payments.

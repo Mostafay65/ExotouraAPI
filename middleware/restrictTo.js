@@ -3,7 +3,7 @@ import AppError from "../utilities/appError.js";
 const restrictTo =
   (...allowedRoles) =>
   (req, res, next) => {
-    if (!allowedRoles.includes(req.user.role)) {
+    if (!req.user.role.some((role) => allowedRoles.includes(role))) {
       return next(
         new AppError("You do not have permission to perform this action.", 403)
       );

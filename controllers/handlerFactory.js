@@ -171,9 +171,7 @@ export const isOnwerDeleteOne = (Model) =>
       _id: id,
       owner: ownerId,
     };
-    console.log(filters);
     const doc = await Model.findOneAndDelete(filters);
-    console.log(doc);
     if (!doc) {
       return next(new AppError(`No ${getModelName(Model)} found with that ID.`, 404));
     }

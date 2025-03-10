@@ -44,13 +44,17 @@ const userSchema = new mongoose.Schema(
     languagesSpoken: [{ type: String }], // Array of languages (e.g., ["English", "Arabic"])
     //
     role: {
-      type: String,
+      type : [String],
       enum: {
-        // edit
+<<<<<<< HEAD
         values: [roles.admin, roles.user, roles.hoster, roles.organizer],
         message: `Role is either: ${roles.admin}, ${roles.user}, ${roles.hoster}, ${roles.organizer}.`,
+=======
+        values: [...Object.values(roles)],
+        message: `Role is either: ${Object.values(roles).join(", ")}.`,
+>>>>>>> majd
       },
-      default: roles.user,
+      default: [roles.user],
     },
     emailStatus: {
       type: String,
@@ -119,6 +123,8 @@ const userSchema = new mongoose.Schema(
       type: Date,
       select: false,
     },
+    stripeAccountId: String,
+    stripeCustomerId: String,
   },
   baseOptions
 );
