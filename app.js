@@ -14,12 +14,13 @@ import { dirname, join } from "path";
 import { fileURLToPath } from "url";
 import eventRouter from "./routes/eventRoutes.js";
 import roleRequestRouter from "./routes/roleRequestRoutes.js";
+import corsOptions from "./configurations/corsOptions.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 export const app = express();
 
 app.use(cors());
-app.use(cookieParser());
+app.use(cookieParser(corsOptions));
 
 // Mount webhook route
 app.use("/webhook", webhookRouter);
