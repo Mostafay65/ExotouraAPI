@@ -18,7 +18,8 @@ import roleRequestRouter from "./routes/roleRequestRoutes.js";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 export const app = express();
 
-app.use(cors());
+app.use();
+
 app.use(cookieParser());
 
 // Mount webhook route

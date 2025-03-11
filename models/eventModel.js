@@ -76,6 +76,9 @@ const eventSchema = new mongoose.Schema(
         ref: "User",
       },
     ],
+    place: {
+      type: String,
+    },
   },
   { timestamps: true }
 );

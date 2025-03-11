@@ -52,7 +52,8 @@ export const filterEvent = (req, res, next) => {
     "accessibilityFeatures",
     "status",
     "images",
-    "type"
+    "type",
+    "place"
   );
 
   req.body.owner = req.user._id;
