@@ -7,6 +7,7 @@ import userRouter from "./routes/userRoutes.js";
 import paymentRouter from "./routes/paymentRoutes.js";
 import webhookRouter from "./routes/webhookRoutes.js";
 import transactionRouter from "./routes/transactionRoutes.js";
+import disabilityRouter from "./routes/disabilityRoutes.js";
 import cookieParser from "cookie-parser";
 import AppError from "./utilities/appError.js";
 import cors from "cors";
@@ -40,6 +41,7 @@ app.use("/transaction", transactionRouter);
 app.use("/accommodationrequest", accommodationRequestRoutes);
 app.use("/event", eventRouter);
 app.use("/role-request", roleRequestRouter);
+app.use("/disability", disabilityRouter);
 
 // Undefined routes
 app.all("*", async (req, res, next) => {

@@ -1,12 +1,9 @@
 import AppError from "../utilities/appError.js";
 import filterBody from "../utilities/filterBody.js";
+import Disability from "../models/DisabilityModel.js";
+import catchAsync from "../utilities/catchAsync.js";
 
-export const setUserId = (req, res, next) => {
-  req.params.id = req.user._id;
-  next();
-};
-
-export const filterAdminBody = (req, res, next) => {
+const handelUserbody = catchAsync(async (req, res, next) => {
   if (req.file) {
     req.body.profilePicture = req.file.path;
   }
@@ -16,6 +13,7 @@ export const filterAdminBody = (req, res, next) => {
       coordinates: req.body.location.split(",").map((coord) => Number(coord.trim())),
     };
   }
+
   if (req.body.languagesSpoken) {
     req.body.languagesSpoken = req.body.languagesSpoken.split(",");
   }
@@ -31,6 +29,24 @@ export const filterAdminBody = (req, res, next) => {
     }
   }
 
+  if (req.body.disabilities) {
+    req.body.disabilities = req.body.disabilities.split(",");
+    for (const disability of req.body.disabilities) {
+      const disabilityExists = await Disability.findById(disability);
+      if (!disabilityExists) {
+        return next(new AppError(`No disability found with id: ${disability}`, 400));
+      }
+    }
+  }
+});
+
+export const setUserId = (req, res, next) => {
+  req.params.id = req.user._id;
+  next();
+};
+
+export const filterAdminBody = (req, res, next) => {
+  handelUserbody(req, res, next);
   req.body = filterBody(
     req.body,
     "email",
@@ -41,7 +57,8 @@ export const filterAdminBody = (req, res, next) => {
     "location",
     "languagesSpoken",
     "role",
-    "emailStatus"
+    "emailStatus",
+    "disabilities"
   );
 
   next();
@@ -57,29 +74,7 @@ export const filterUserBody = (req, res, next) => {
       )
     );
 
-  if (req.file) {
-    req.body.profilePicture = req.file.path;
-  }
-
-  if (req.body.location) {
-    req.body.location = {
-      coordinates: req.body.location.split(",").map((coord) => Number(coord.trim())),
-    };
-  }
-  if (req.body.languagesSpoken) {
-    req.body.languagesSpoken = req.body.languagesSpoken.split(",");
-  }
-
-  if (req.body.firstName) {
-    if (!req.body.lastName) {
-      return next(new AppError("Please provide your last name.", 400));
-    } else {
-      req.body.fullName = {
-        firstName: req.body.firstName,
-        lastName: req.body.lastName,
-      };
-    }
-  }
+  handelUserbody(req, res, next);
 
   req.body = filterBody(
     req.body,
@@ -88,7 +83,8 @@ export const filterUserBody = (req, res, next) => {
     "bio",
     "profilePicture",
     "location",
-    "languagesSpoken"
+    "languagesSpoken",
+    "disabilities"
   );
   next();
 };
