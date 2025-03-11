@@ -9,6 +9,7 @@ import jwt from "jsonwebtoken";
 import { promisify } from "util";
 import mongoose from "mongoose";
 import httpStatusText from "../helpers/httpStatusText.js";
+import googleService from "../services/googleService.js";
 
 export const signup = catchAsync(async (req, res, next) => {
   // Start a session and transaction.
@@ -31,7 +32,11 @@ export const signup = catchAsync(async (req, res, next) => {
     const verificationCode = user[0].createVerificationCode();
     await user[0].save({ validateBeforeSave: false });
 
-    await new Email(user[0], verificationCode).sendVerify();
+    try {
+      await new Email(user[0], verificationCode).sendVerify();
+    } catch {
+      return next(new AppError("Email sending failed. Please try again later.", 500));
+    }
 
     // Commit transaction.
     await session.commitTransaction();
@@ -46,26 +51,60 @@ export const signup = catchAsync(async (req, res, next) => {
     await session.abortTransaction();
     session.endSession();
 
-    return next(new AppError("Sorry, Try again later.", 500));
+    return next(err);
   }
+});
+
+export const googleTokenAuth = catchAsync(async (req, res, next) => {
+  const { googleAccessToken } = req.body;
+  if (!googleAccessToken) {
+    return next(new AppError("Please provide Google access token", 400));
+  }
+  const googleUser = await googleService.getUserInfo(googleAccessToken);
+  if (!googleUser) {
+    return next(new AppError("Google user not found", 404));
+  }
+  // Find or create user
+  let user = await User.findOne({ email: googleUser.email });
+
+  if (!user) {
+    user = await User.create({
+      email: googleUser.email,
+      fullName: {
+        firstName: googleUser.given_name,
+        lastName: googleUser.family_name,
+      },
+      profilePicture: googleUser.picture,
+      emailStatus: googleUser.email_verified ? "verified" : "awaitingVerification",
+      password: crypto.randomBytes(32).toString("hex"), // Random secure password
+    });
+  }
+
+  sendTokenResponse(user, 200, res, "Google authentication successful");
 });
 
 export const resendVerificationCode = catchAsync(async (req, res, next) => {
   const { email } = req.body;
-  const user = await User.findOne({ email });
+  const user = await User.findOne({ email }).select("+tempEmail");
 
   if (!user) {
     return next(new AppError("User with this email address is not found.", 404));
   }
 
-  if (user.emailStatus !== "awaitingVerification")
+  const isEmailChange = Boolean(user.tempEmail);
+
+  if (!isEmailChange && user.emailStatus !== "awaitingVerification")
     return next(new AppError("Email is already verified.", 400));
 
   const verificationCode = user.createVerificationCode();
   await user.save({ validateBeforeSave: false });
 
   try {
-    await new Email(user, verificationCode).sendVerify();
+    if (isEmailChange) {
+      await new Email(user, verificationCode, user.tempEmail).sendVerify();
+    } else {
+      await new Email(user, verificationCode).sendVerify();
+    }
 
     res.status(201).json({
       status: httpStatusText.SUCCESS,
@@ -76,7 +115,7 @@ export const resendVerificationCode = catchAsync(async (req, res, next) => {
     user.verificationCodeExpires = undefined;
     await user.save({ validateBeforeSave: false });
 
-    return next(new AppError("Failed to send verification email. Try again later.", 500));
+    return next(new AppError("Email sending failed. Please try again later.", 500));
   }
 });
 
@@ -153,6 +192,7 @@ export const refreshToken = catchAsync(async (req, res, next) => {
   const accessToken = signToken(
     {
       userInfo: {
+        id: user._id,
         email: user.email,
         fullName: user.fullName,
         role: user.role,
@@ -183,11 +223,19 @@ export const updatePassword = catchAsync(async (req, res, next) => {
   sendTokenResponse(user, 200, res);
 });
 
-// TODO: Edit later to check if the given email exist (use API).
 export const updateEmail = catchAsync(async (req, res, next) => {
-  const user = await User.findById(req.user._id);
+  const { email, password } = req.body;
+  if (!email || !password) {
+    return next(new AppError("Please provide email and password", 400));
+  }
 
-  user.tempEmail = req.body.email;
+  const user = await User.findOne({ email: req.user.email }).select("+password");
+
+  if (!user || !(await user.correctPassword(password))) {
+    return next(new AppError("Invalid email or password.", 401));
+  }
+
+  user.tempEmail = email;
   const validationError = user.validateSync(["tempEmail"]);
   if (validationError) {
     return next(new AppError(validationError.errors.tempEmail.message, 400));
@@ -197,11 +245,11 @@ export const updateEmail = catchAsync(async (req, res, next) => {
   await user.save({ validateBeforeSave: false });
 
   try {
-    await new Email(user, verificationCode).sendVerify();
+    await new Email(user, verificationCode, email).sendVerify();
 
     res.status(200).json({
       status: httpStatusText.SUCCESS,
-      message: "Verification code sent to email.",
+      message: "Verification code sent to the new email.",
     });
   } catch (err) {
     user.verificationCode = undefined;

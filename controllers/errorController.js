@@ -1,5 +1,6 @@
 import AppError from "../utilities/appError.js";
 import httpStatusText from "../helpers/httpStatusText.js";
+import Stripe from "stripe";
 
 const handleCastErrorDB = (err) => {
   const message = `Invalid ${err.path}: ${err.value}.`;
@@ -32,6 +33,13 @@ const handleJWTExpiredError = (req) => {
   return new AppError("Your token has expired. Please log in again.", 401);
 };
 
+const handleStripeError = (error) => new AppError(error.message, error.statusCode);
+
+const handleFileSizeLimitError = () =>
+  new AppError("File size exceeds the limit of 1MB!", 400);
+
+const handelFileFormateError = (error) => new AppError(error.message, 400);
+
 const sendErrorProd = (err, res) => {
   if (err.isOperational) {
     res.status(err.statusCode).json({
@@ -61,7 +69,7 @@ const sendErrorDev = (err, res) => {
 const globalErrorHandler = (err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
   err.status = err.status || "error";
-
+  console.log(err);
   if (process.env.NODE_ENV === "development") {
     sendErrorDev(err, res);
   } else if (process.env.NODE_ENV === "production") {
@@ -74,6 +82,12 @@ const globalErrorHandler = (err, req, res, next) => {
     // JWT errors
     if (error.name === "JsonWebTokenError") error = handleJTWError();
     if (error.name === "TokenExpiredError") error = handleJWTExpiredError(req);
+
+    if (error instanceof Stripe.errors.StripeError) error = handleStripeError(error);
+
+    if (error.code === "LIMIT_FILE_SIZE") error = handleFileSizeLimitError();
+
+    if (error.http_code === 400) error = handelFileFormateError(error);
 
     sendErrorProd(error, res);
   }

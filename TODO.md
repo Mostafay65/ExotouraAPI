@@ -1,0 +1,7 @@
+- add limit rate to restrict the number of requests per user
+- revoke the token on logout.
+- send filess as chunks
+- merge model hndler with controller
+- multiple roles for users
+- add disability for users
+- add dispute logic for payments.
