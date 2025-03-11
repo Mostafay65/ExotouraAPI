@@ -192,6 +192,7 @@ export const refreshToken = catchAsync(async (req, res, next) => {
   const accessToken = signToken(
     {
       userInfo: {
+        id: user._id,
         email: user.email,
         fullName: user.fullName,
         role: user.role,
