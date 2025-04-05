@@ -1,0 +1,120 @@
+[
+  {
+    "name": "Mobility Disability",
+    "description": "Difficulty moving due to paralysis, amputation, or other conditions",
+    "assistive_tools": [
+      {
+        "name": "Wheelchair",
+        "description": "Used to help individuals with mobility disabilitiess move around"
+      },
+      {
+        "name": "Crutches",
+        "description": "Assist people with mobility difficulties in walking"
+      }
+    ],
+    "interaction_guidelines": [
+      "Do not push a person's wheelchair without permission",
+      "Maintain eye level while talking to a wheelchair user",
+      "Ensure enough space for movement when sitting with them"
+    ]
+  },
+  {
+    "name": "Visual Disability",
+    "description": "Partial or complete loss of vision",
+    "assistive_tools": [
+      {
+        "name": "White Cane",
+        "description": "Helps blind individuals navigate their surroundings"
+      },
+      {
+        "name": "Screen Reader Software",
+        "description": "Helps visually impaired individuals use computers"
+      },
+      {
+        "name": "Tactile Maps",
+        "description": "Help blind individuals locate important places"
+      }
+    ],
+    "interaction_guidelines": [
+      "Ask before assisting a blind person",
+      "Describe surroundings when necessary",
+      "Do not touch a guide dog or white cane without permission"
+    ]
+  },
+  {
+    "name": "Hearing Disability",
+    "description": "Partial or complete loss of hearing",
+    "assistive_tools": [
+      {
+        "name": "Hearing Aids",
+        "description": "Assist individuals with hearing difficulties"
+      },
+      {
+        "name": "Sign Language Interpreter",
+        "description": "Helps in communication with deaf individuals"
+      }
+    ],
+    "interaction_guidelines": [
+      "Speak clearly and slowly to a person with hearing disability",
+      "Maintain eye contact while speaking",
+      "Use facial expressions and gestures to help convey meaning"
+    ]
+  },
+  {
+    "name": "Intellectual Disability",
+    "description": "Difficulties in learning or cognitive development",
+    "assistive_tools": [
+      {
+        "name": "Alternative Communication Boards",
+        "description": "Used to help individuals with speech difficulties communicate"
+      },
+      {
+        "name": "Specialized Learning Applications",
+        "description": "Programs designed to aid in skill development"
+      }
+    ],
+    "interaction_guidelines": [
+      "Use simple language and be patient",
+      "Give them enough time to respond or make decisions",
+      "Avoid speaking to them as if they are children if they are adults"
+    ]
+  },
+  {
+    "name": "Psychological Disability",
+    "description": "Mental health conditions such as autism, anxiety, or depression",
+    "assistive_tools": [
+      {
+        "name": "Coping Techniques",
+        "description": "Applications for meditation and deep breathing exercises"
+      },
+      {
+        "name": "Mental Health Support",
+        "description": "Counseling and community support services"
+      }
+    ],
+    "interaction_guidelines": [
+      "Be understanding and supportive",
+      "Do not pressure them to talk if they are not ready",
+      "Respect their personal space and emotions"
+    ]
+  },
+  {
+    "name": "Speech and Communication Disability",
+    "description": "Difficulties in speaking or verbal communication",
+    "assistive_tools": [
+      {
+        "name": "Speech-Generating Devices",
+        "description": "Help individuals with speech difficulties communicate"
+      },
+      {
+        "name": "Instant Translation Apps",
+        "description": "Assist in converting text to speech and vice versa"
+      }
+    ],
+    "interaction_guidelines": [
+      "Be patient and do not complete sentences for them",
+      "Use alternative methods like writing or gestures if needed",
+      "Do not assume they cannot understand you"
+    ]
+  }
+]

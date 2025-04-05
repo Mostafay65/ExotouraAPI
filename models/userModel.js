@@ -41,7 +41,8 @@ const userSchema = new mongoose.Schema(
     location: {
       type: LocationSchema,
     },
-    languagesSpoken: [{ type: String }], // Array of languages (e.g., ["English", "Arabic"])
+    languagesSpoken: { type: [String] }, // Array of languages (e.g., ["English", "Arabic"])
+    disabilities: [{ type: mongoose.Schema.Types.ObjectId, ref: "Disability" }],
     //
     role: {
       type: [String],
