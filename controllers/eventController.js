@@ -1,6 +1,6 @@
 import {
   createOne,
-  isOnwerDeleteOne,
+  isOwnerOrAdminDeleteOne,
   isOwnerUpdateOne,
   getAll,
   getOne,
@@ -24,7 +24,7 @@ export const getEventById = getOne(Event, popOptions);
 
 export const createEvent = createOne(Event);
 
-export const deleteEvent = isOnwerDeleteOne(Event);
+export const deleteEvent = isOwnerOrAdminDeleteOne(Event);
 
 export const updateEvent = isOwnerUpdateOne(Event);
 
