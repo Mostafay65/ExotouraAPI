@@ -9,7 +9,7 @@ const roleRequestSchema = new mongoose.Schema({
   },
   roleType: {
     type: String,
-    enum: [roles.organizer , roles.hoster],
+    enum: [roles.organizer, roles.hoster],
     required: true,
   },
   status: {
@@ -17,14 +17,19 @@ const roleRequestSchema = new mongoose.Schema({
     enum: Object.values(requestStatus),
     default: requestStatus.pending,
   },
+  userPicture: {
+    type: String,
+    required: true,
+  },
+  idCard: {
+    type: String,
+    required: true,
+  },
   attachments: {
     type: [String],
     required: true,
   },
 });
 
-const roleRequestModel = mongoose.model(
-  "role Request",
-  roleRequestSchema
-);
+const roleRequestModel = mongoose.model("role Request", roleRequestSchema);
 export default roleRequestModel;

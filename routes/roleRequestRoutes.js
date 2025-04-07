@@ -19,7 +19,11 @@ const router = Router();
 router.post(
   "/",
   authorize,
-  upload.array("attachments", 10),
+  upload.fields([
+    { name: "userPicture", maxCount: 1 },
+    { name: "idCard", maxCount: 1 },
+    { name: "attachments", maxCount: 1 },
+  ]),
   validate(requestRoleSchema),
   requestRole
 );
@@ -40,7 +44,6 @@ router.patch("/approve/:id", validate(idSchema), approveRequest);
 
 // reject specific request
 router.patch("/reject/:id", validate(idSchema), rejectRequest);
-
 
 // get user's requests
 router.get("/user/:id", validate(idSchema), getUserRequests);
