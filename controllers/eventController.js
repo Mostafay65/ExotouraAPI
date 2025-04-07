@@ -50,8 +50,9 @@ export const registerEvent = catchAsync(async (req, res, next) => {
     return next(new AppError(`You have already registered for this event.`, 400));
   }
 
-  event.attendees.push(userId);
-  await event.save();
+  await Event.findByIdAndUpdate(id, {
+    $push: { attendees: userId },
+  });
 
   res.status(200).json({
     status: "success",
@@ -72,8 +73,9 @@ export const cancelRegistration = catchAsync(async (req, res, next) => {
     return next(new AppError(`You have not registered for this event.`, 400));
   }
 
-  event.attendees.pull(userId);
-  await event.save();
+  await Event.findByIdAndUpdate(id, {
+    $pull: { attendees: userId },
+  });
 
   res.status(200).json({
     status: "success",
