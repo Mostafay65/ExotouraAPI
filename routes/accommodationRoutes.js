@@ -27,13 +27,13 @@ router.delete("/:id", deleteAccommodation);
 
 router.post(
   "/",
-  upload.array("images", 5),
+  upload.array("images", 15),
   filterAccommodationBody,
   createAccommodation
 );
 router.patch(
   "/:id",
-  upload.array("images", 5),
+  upload.array("images", 15),
   filterAccommodationBody,
   updateAccommodation
 );
