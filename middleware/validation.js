@@ -12,8 +12,13 @@ export const validate = (schema) => {
   return (req, res, next) => {
     const data = { ...req.params, ...req.query, ...req.body };
 
-    if (req.file || req.files?.length) {
-      data.attachments = req.file || req.files;
+    if (req.files) {
+      for (const filed in req.files) {
+        data[filed] = req.files[filed];
+      }
+    }
+    if (req.file) {
+      data.file = req.file;
     }
 
     const result = schema.validate(data, { abortEarly: false });
