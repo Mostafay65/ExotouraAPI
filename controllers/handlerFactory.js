@@ -2,6 +2,8 @@ import ApiFeatures from "../utilities/apiFeatures.js";
 import catchAsync from "../utilities/catchAsync.js";
 import AppError from "../utilities/appError.js";
 import httpStatusText from "../helpers/httpStatusText.js";
+import roles from "../helpers/roles.js";
+import User from "../models/userModel.js";
 
 const getModelName = (Model) => Model.modelName.toLowerCase();
 
@@ -176,7 +178,39 @@ export const isOnwerDeleteOne = (Model) =>
       return next(new AppError(`No ${getModelName(Model)} found with that ID.`, 404));
     }
 
-    return res.status(410).json({
+    return res.status(200).json({
+      status: httpStatusText.SUCCESS,
+      message: `${getModelName(Model)} has been deleted successfully.`,
+    });
+  });
+
+export const isOwnerOrAdminDeleteOne = (Model) =>
+  catchAsync(async (req, res, next) => {
+    const { _id: ownerId } = req.user;
+    const { id } = req.params;
+
+    const user = await User.findById(ownerId);
+    if (user.role.includes(roles.admin)) {
+      const doc = await Model.findOneAndDelete({ _id: id });
+      if (!doc) {
+        return next(new AppError(`No ${getModelName(Model)} found with that ID.`, 404));
+      }
+      return res.status(200).json({
+        status: httpStatusText.SUCCESS,
+        message: `${getModelName(Model)} has been deleted successfully.`,
+      });
+    }
+
+    const filters = {
+      _id: id,
+      owner: ownerId,
+    };
+    const doc = await Model.findOneAndDelete(filters);
+    if (!doc) {
+      return next(new AppError(`No ${getModelName(Model)} found with that ID.`, 404));
+    }
+
+    return res.status(200).json({
       status: httpStatusText.SUCCESS,
       message: `${getModelName(Model)} has been deleted successfully.`,
     });

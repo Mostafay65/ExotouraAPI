@@ -3,7 +3,7 @@ import roles from "../helpers/roles.js";
 import { generalFeilds } from "../middleware/validation.js";
 
 export const attachmentSchema = Joi.object({
-  fieldname: Joi.string().valid("attachments").required(),
+  fieldname: Joi.string().valid("attachments", "userPicture", "idCard").required(),
   originalname: Joi.string().required(),
   encoding: Joi.string().required(),
   mimetype: Joi.string()
@@ -18,7 +18,9 @@ export const attachmentSchema = Joi.object({
 
 export const requestRoleSchema = Joi.object().keys({
   roleType: Joi.string().valid(roles.hoster, roles.organizer).required(),
-  attachments: Joi.array().items(attachmentSchema).min(2).max(10).required(),
+  attachments: Joi.array().items(attachmentSchema).min(1).max(5).required(),
+  userPicture: Joi.array().items(attachmentSchema).min(1).max(1).required(),
+  idCard: Joi.array().items(attachmentSchema).min(1).max(1).required(),
 });
 
 export const idSchema = Joi.object().keys({

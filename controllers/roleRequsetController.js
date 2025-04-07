@@ -9,14 +9,16 @@ import { deleteOne, getAll, getOne } from "./handlerFactory.js";
 export const requestRole = catchAsync(async (req, res, next) => {
   const { roleType } = req.body;
 
-  const attachments = [];
-  for (const file of req.files) {
-    attachments.push(file.path);
+  const data = {
+    roleType,
+  };
+
+  for (const filed in req.files) {
+    data[filed] = req.files[filed][0].path;
   }
 
   await roleRequestModel.create({
-    roleType,
-    attachments,
+    ...data,
     user: req.user._id,
   });
 
@@ -101,5 +103,5 @@ export const rejectRequest = catchAsync(async (req, res, next) => {
 
 export const getUserRequests = catchAsync(async (req, res, next) => {
   const { _id: userId } = req.user;
-  getAll(roleRequestModel, "" , { user: userId })(req, res, next);
+  getAll(roleRequestModel, "", { user: userId })(req, res, next);
 });
