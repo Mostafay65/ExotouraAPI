@@ -96,7 +96,8 @@ const accommodationSchema = new mongoose.Schema({
     ref: "User",
     required: true,
   },
-});
+},
+{ timestamps: true });
 const Accommodation = mongoose.model("Accommodation", accommodationSchema);
 
 export default Accommodation;
