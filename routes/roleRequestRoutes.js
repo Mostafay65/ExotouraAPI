@@ -22,7 +22,7 @@ router.post(
   upload.fields([
     { name: "userPicture", maxCount: 1 },
     { name: "idCard", maxCount: 1 },
-    { name: "attachments", maxCount: 1 },
+    { name: "attachments", maxCount: 5 },
   ]),
   validate(requestRoleSchema),
   requestRole

@@ -38,7 +38,6 @@ export const registerEvent = catchAsync(async (req, res, next) => {
   }
 
   if (event.registrationEndDate < Date.now()) {
-    console.log();
     return next(new AppError(`Registration for this event has been closed.`, 404));
   }
 

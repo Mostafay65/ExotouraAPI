@@ -16,6 +16,7 @@ import { fileURLToPath } from "url";
 import eventRouter from "./routes/eventRoutes.js";
 import roleRequestRouter from "./routes/roleRequestRoutes.js";
 import corsOptions from "./configurations/corsOptions.js";
+import hangoutRouter from "./routes/hangoutRoutes.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 export const app = express();
@@ -42,6 +43,7 @@ app.use("/accommodationrequest", accommodationRequestRoutes);
 app.use("/event", eventRouter);
 app.use("/role-request", roleRequestRouter);
 app.use("/disability", disabilityRouter);
+app.use("/hangout", hangoutRouter);
 
 // Undefined routes
 app.all("*", async (req, res, next) => {
