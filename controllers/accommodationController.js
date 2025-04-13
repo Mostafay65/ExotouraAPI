@@ -8,7 +8,8 @@ import {
   isOnwerDeleteOne,
 } from "./handlerFactory.js";
 
-const popOptions = {
+const popOptions = 
+{
   path: "owner",
   select: "profileDescription rating status email phoneNumber fullName profilePicture ",
 };

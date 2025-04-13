@@ -49,14 +49,28 @@ export const createAccommodationRequest = catchAsync(async (req, res, next) => {
     return next(new AppError("You can't send a request to your own accommodation", 400));
   }
 
-  const existingRequest = await AccommodationRequest.findOne({
+  const fromDate = new Date(req.body.from);
+  const toDate = new Date(req.body.to);
+
+  // To find requests where the 'from' and 'to' dates are the same as 'req.body.from' and 'req.body.to'
+  const existingRequest = await AccommodationRequest.find({
     accommodation,
     user,
+    $expr: {
+      $and: [
+        { $eq: [{ $dayOfMonth: "$from" }, fromDate.getDate()] },
+        { $eq: [{ $month: "$from" }, fromDate.getMonth() + 1] }, // Months are 0-indexed
+        { $eq: [{ $year: "$from" }, fromDate.getFullYear()] },
+        { $eq: [{ $dayOfMonth: "$to" }, toDate.getDate()] },
+        { $eq: [{ $month: "$to" }, toDate.getMonth() + 1] }, // Months are 0-indexed
+        { $eq: [{ $year: "$to" }, toDate.getFullYear()] }
+      ]
+    }
   });
 
-  if (existingRequest) {
+  if (existingRequest.length > 0) {
     return next(
-      new AppError("You have already sent a request for this accommodation", 400)
+      new AppError("You have already sent a request for this accommodation on the same day", 400)
     );
   }
   req.body.status = requestStatus.pending;
@@ -108,8 +122,9 @@ export const deleteAccommodationRequest = catchAsync(async (req, res, next) => {
       )
     );
   }
-  return res.status(410).json({
+  return res.status(204).json({
     status: httpStatusText.SUCCESS,
+    message: "Request deleted successfully",
     data: null,
   });
 });
