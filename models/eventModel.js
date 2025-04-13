@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import accessibilityFeatures from "../helpers/accessibilityFeatures.js";
 import LocationSchema from "./locationModel.js";
+import cron from "node-cron";
 
 const eventTypes = ["Sport", "Cultural", "Social", "Educational", "Other"];
 const eventSchema = new mongoose.Schema(
@@ -90,6 +91,10 @@ eventSchema.pre("save", function (next) {
     this.registrationEndDate = oneDayBefore;
   }
 
+  if (this.registrationEndDate && now > this.registrationEndDate) {
+    this.status = "Closed";
+  }
+
   if (this.attendees.length >= this.maxCapacity) {
     this.status = "Full";
   } else if (this.status === "Full") {
@@ -100,4 +105,22 @@ eventSchema.pre("save", function (next) {
 });
 
 const Event = mongoose.model("Event", eventSchema);
+
+// Runs every hour ?/
+cron.schedule("0 * * * *", async () => {
+  const now = new Date();
+
+  try {
+    const result = await Event.updateMany(
+      {
+        status: "Open",
+        registrationEndDate: { $lt: now },
+      },
+      { $set: { status: "Closed" } }
+    );
+  } catch (err) {
+    console.error("Error updating event statuses:", err);
+  }
+});
+
 export default Event;

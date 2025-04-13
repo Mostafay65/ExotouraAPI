@@ -12,13 +12,27 @@ import AppError from "../utilities/appError.js";
 export const getAllEvents = catchAsync(async (req, res, next) => {
   const filter = {};
   if (req.params.id) filter.owner = req.params.id;
-  getAll(Event, "", filter)(req, res, next);
+  getAll(Event, [{ path: "attendees", select: "fullName profilePicture" }], filter)(
+    req,
+    res,
+    next
+  );
 });
 
-const popOptions = {
-  path: "owner",
-  select: "profileDescription rating status email phoneNumber fullName profilePicture ",
-};
+const popOptions = [
+  {
+    path: "owner",
+    select: "profileDescription rating status email phoneNumber fullName profilePicture ",
+  },
+  {
+    path: "attendees",
+    select: "fullName profilePicture ",
+  },
+  {
+    path: "volunteers",
+    select: "fullName profilePicture ",
+  },
+];
 
 export const getEventById = getOne(Event, popOptions);
 
@@ -38,7 +52,6 @@ export const registerEvent = catchAsync(async (req, res, next) => {
   }
 
   if (event.registrationEndDate < Date.now()) {
-    console.log();
     return next(new AppError(`Registration for this event has been closed.`, 404));
   }
 
