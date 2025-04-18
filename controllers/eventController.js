@@ -127,3 +127,25 @@ export const getOrganizerEvents = catchAsync(async (req, res, next) => {
   const { _id: userId } = req.user;
   getAll(Event, "", { owner: userId })(req, res, next);
 });
+
+export const eventVolunteer = catchAsync(async (req, res, next) => {
+  const { id } = req.params;
+  const { _id: userId } = req.user;
+
+  const event = await Event.findById(id);
+  if (!event) {
+    return next(new AppError(`No event found with that ID.`, 404));
+  }
+  if (event.volunteers.includes(userId)) {
+    return next(new AppError(`You have already volunteered for this event.`, 400));
+  }
+
+  await Event.findByIdAndUpdate(id, {
+    $push: { volunteers: userId },
+  });
+
+  res.status(200).json({
+    status: "success",
+    message: "You have successfully volunteered for this event.",
+  });
+});
