@@ -85,6 +85,7 @@ const eventSchema = new mongoose.Schema(
 );
 
 eventSchema.pre("save", function (next) {
+  const now = new Date();
   if (this.availability && this.availability.from) {
     const oneDayBefore = new Date(this.availability.from);
     oneDayBefore.setDate(oneDayBefore.getDate() - 1);
