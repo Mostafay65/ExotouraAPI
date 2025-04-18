@@ -2,7 +2,8 @@ const roles = {
   admin: "ADMIN",
   user: "USER",
   hoster: "HOSTER",
-  organizer:"ORGANIZER"
+  organizer: "ORGANIZER",
+  volunteer: "VOLUNTEER",
 };
 
 export default roles;

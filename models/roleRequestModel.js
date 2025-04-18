@@ -9,7 +9,7 @@ const roleRequestSchema = new mongoose.Schema({
   },
   roleType: {
     type: String,
-    enum: [roles.organizer, roles.hoster],
+    enum: Object.values(roles),
     required: true,
   },
   status: {
