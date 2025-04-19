@@ -149,3 +149,32 @@ export const eventVolunteer = catchAsync(async (req, res, next) => {
     message: "You have successfully volunteered for this event.",
   });
 });
+
+export const searchEvents = catchAsync(async (req, res, next) => {
+  const { search = "", from = "", to = "", type = "" } = req.query;
+
+  const filter = {
+    $or: [
+      { name: { $regex: search, $options: "i" } },
+      { description: { $regex: search, $options: "i" } },
+    ],
+  };
+
+  if (from) {
+    filter["availability.from"] = { $gte: new Date(from) };
+  }
+  if (to) {
+    filter["availability.to"] = { $lte: new Date(to) };
+  }
+
+  if (type) {
+    filter.type = { $regex: type, $options: "i" };
+  }
+
+  const events = await Event.find(filter).populate(popOptions);
+  res.status(200).json({
+    status: "success",
+    results: events.length,
+    data: { events },
+  });
+});
