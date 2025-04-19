@@ -40,8 +40,8 @@ export const getAccommodationsOnMap = catchAsync(async (req, res, next) => {
     "location.coordinates": {
       $geoWithin: {
         $box: [
-          [parseFloat(blLng), parseFloat(blLat)], // Bottom-left corner
-          [parseFloat(trLng), parseFloat(trLat)], // Top-right corner
+          [parseFloat(blLat), parseFloat(blLng)], // Bottom-left corner
+          [parseFloat(trLat), parseFloat(trLng)], // Top-right corner
         ],
       },
     },
@@ -71,7 +71,7 @@ export const getNearbyAccommodations = catchAsync(async (req, res, next) => {
       $near: {
         $geometry: {
           type: "Point",
-          coordinates: [parseFloat(longitude), parseFloat(latitude)],
+          coordinates: [parseFloat(latitude), parseFloat(longitude)],
         },
         $maxDistance: parseInt(maxDistance),
       },
