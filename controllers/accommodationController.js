@@ -45,7 +45,7 @@ export const getAccommodationsOnMap = catchAsync(async (req, res, next) => {
         ],
       },
     },
-  }).select("name _id");
+  }).select("name _id location");
 
   res.status(200).json({
     status: "success",
