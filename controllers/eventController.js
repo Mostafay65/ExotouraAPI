@@ -12,13 +12,27 @@ import AppError from "../utilities/appError.js";
 export const getAllEvents = catchAsync(async (req, res, next) => {
   const filter = {};
   if (req.params.id) filter.owner = req.params.id;
-  getAll(Event, "", filter)(req, res, next);
+  getAll(Event, [{ path: "attendees", select: "fullName profilePicture" }], filter)(
+    req,
+    res,
+    next
+  );
 });
 
-const popOptions = {
-  path: "owner",
-  select: "profileDescription rating status email phoneNumber fullName profilePicture ",
-};
+const popOptions = [
+  {
+    path: "owner",
+    select: "profileDescription rating status email phoneNumber fullName profilePicture ",
+  },
+  {
+    path: "attendees",
+    select: "fullName profilePicture ",
+  },
+  {
+    path: "volunteers",
+    select: "fullName profilePicture ",
+  },
+];
 
 export const getEventById = getOne(Event, popOptions);
 
@@ -38,7 +52,6 @@ export const registerEvent = catchAsync(async (req, res, next) => {
   }
 
   if (event.registrationEndDate < Date.now()) {
-    console.log();
     return next(new AppError(`Registration for this event has been closed.`, 404));
   }
 
@@ -113,4 +126,55 @@ export const getUserEvents = catchAsync(async (req, res, next) => {
 export const getOrganizerEvents = catchAsync(async (req, res, next) => {
   const { _id: userId } = req.user;
   getAll(Event, "", { owner: userId })(req, res, next);
+});
+
+export const eventVolunteer = catchAsync(async (req, res, next) => {
+  const { id } = req.params;
+  const { _id: userId } = req.user;
+
+  const event = await Event.findById(id);
+  if (!event) {
+    return next(new AppError(`No event found with that ID.`, 404));
+  }
+  if (event.volunteers.includes(userId)) {
+    return next(new AppError(`You have already volunteered for this event.`, 400));
+  }
+
+  await Event.findByIdAndUpdate(id, {
+    $push: { volunteers: userId },
+  });
+
+  res.status(200).json({
+    status: "success",
+    message: "You have successfully volunteered for this event.",
+  });
+});
+
+export const searchEvents = catchAsync(async (req, res, next) => {
+  const { search = "", from = "", to = "", type = "" } = req.query;
+
+  const filter = {
+    $or: [
+      { name: { $regex: search, $options: "i" } },
+      { description: { $regex: search, $options: "i" } },
+    ],
+  };
+
+  if (from) {
+    filter["availability.from"] = { $gte: new Date(from) };
+  }
+  if (to) {
+    filter["availability.to"] = { $lte: new Date(to) };
+  }
+
+  if (type) {
+    filter.type = { $regex: type, $options: "i" };
+  }
+
+  const events = await Event.find(filter).populate(popOptions);
+  res.status(200).json({
+    status: "success",
+    results: events.length,
+    data: { events },
+  });
 });

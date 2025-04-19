@@ -13,8 +13,12 @@ export const requestRole = catchAsync(async (req, res, next) => {
     roleType,
   };
 
-  for (const filed in req.files) {
-    data[filed] = req.files[filed][0].path;
+  for (const field in req.files) {
+    if (field === "attachments") {
+      data[field] = req.files[field].map((file) => file.path);
+    } else {
+      data[field] = req.files[field][0].path;
+    }
   }
 
   await roleRequestModel.create({
@@ -29,15 +33,15 @@ export const requestRole = catchAsync(async (req, res, next) => {
 });
 
 export const getAllRequests = catchAsync(async (req, res, next) => {
-  getAll(roleRequestModel, { path: "user", select: "fullName profilePicture email" })(
-    req,
-    res,
-    next
-  );
+  getAll(
+    roleRequestModel,
+    { path: "user", select: "fullName profilePicture email role" },
+    { status: requestStatus.pending }
+  )(req, res, next);
 });
 
 export const getSpecificRequest = catchAsync(async (req, res, next) => {
-  getOne(roleRequestModel, { path: "user", select: "fullName profilePicture email" })(
+  getOne(roleRequestModel, { path: "user", select: "fullName profilePicture email " })(
     req,
     res,
     next

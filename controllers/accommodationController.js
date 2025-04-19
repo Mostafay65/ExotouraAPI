@@ -19,6 +19,74 @@ export const getAllAccommodations = catchAsync(async (req, res, next) => {
   getAll(Accommodation, "", filter)(req, res, next);
 });
 
+export const getAccommodationsOnMap = catchAsync(async (req, res, next) => {
+  // Expecting coordinates from frontend as:
+  // req.query.blLng, req.query.blLat, req.query.trLng, req.query.trLat
+  const { blLng, blLat, trLng, trLat } = req.query;
+
+  if (
+    blLng === undefined ||
+    blLat === undefined ||
+    trLng === undefined ||
+    trLat === undefined
+  ) {
+    return res.status(400).json({
+      status: "fail",
+      message: "Please provide blLng, blLat, trLng, and trLat as query parameters.",
+    });
+  }
+
+  const accommodations = await Accommodation.find({
+    "location.coordinates": {
+      $geoWithin: {
+        $box: [
+          [parseFloat(blLat), parseFloat(blLng)], // Bottom-left corner
+          [parseFloat(trLat), parseFloat(trLng)], // Top-right corner
+        ],
+      },
+    },
+  }).select("name _id location");
+
+  res.status(200).json({
+    status: "success",
+    results: accommodations.length,
+    data: {
+      accommodations,
+    },
+  });
+});
+
+export const getNearbyAccommodations = catchAsync(async (req, res, next) => {
+  const { longitude, latitude, maxDistance = 10000 } = req.query; // maxDistance in meters, default 10km
+
+  if (longitude === undefined || latitude === undefined) {
+    return res.status(400).json({
+      status: "fail",
+      message: "Please provide longitude and latitude as query parameters.",
+    });
+  }
+
+  const accommodations = await Accommodation.find({
+    "location.coordinates": {
+      $near: {
+        $geometry: {
+          type: "Point",
+          coordinates: [parseFloat(latitude), parseFloat(longitude)],
+        },
+        $maxDistance: parseInt(maxDistance),
+      },
+    },
+  });
+
+  res.status(200).json({
+    status: "success",
+    results: accommodations.length,
+    data: {
+      accommodations,
+    },
+  });
+});
+
 export const getAccommodationById = getOne(Accommodation, popOptions);
 
 export const createAccommodation = createOne(Accommodation);

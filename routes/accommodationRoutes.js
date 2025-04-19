@@ -4,6 +4,8 @@ import {
   createAccommodation,
   updateAccommodation,
   deleteAccommodation,
+  getAccommodationsOnMap,
+  getNearbyAccommodations
 } from "../controllers/accommodationController.js";
 import Authorize from "../middleware/authorize.js";
 import express from "express";
@@ -19,6 +21,8 @@ const router = express.Router({ mergeParams: true }); // Enable mergeParams
 router.use("/:id/requests", accommodationRequestRoutes);
 
 router.get("/", getAllAccommodations);
+router.get("/map", getAccommodationsOnMap);
+router.get("/near", getNearbyAccommodations);
 router.get("/:id", getAccommodationById);
 
 router.use(Authorize, restrictTo(roles.hoster));
@@ -27,13 +31,13 @@ router.delete("/:id", deleteAccommodation);
 
 router.post(
   "/",
-  upload.array("images", 5),
+  upload.array("images", 15),
   filterAccommodationBody,
   createAccommodation
 );
 router.patch(
   "/:id",
-  upload.array("images", 5),
+  upload.array("images", 15),
   filterAccommodationBody,
   updateAccommodation
 );

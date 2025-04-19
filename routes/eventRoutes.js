@@ -10,6 +10,8 @@ import {
   checkEventRegistration,
   getUserEvents,
   getOrganizerEvents,
+  eventVolunteer,
+  searchEvents,
 } from "../controllers/eventController.js";
 import authorize from "../middleware/authorize.js";
 import restrictTo from "../middleware/restrictTo.js";
@@ -27,6 +29,9 @@ router.get("/organizer", authorize, restrictTo(roles.organizer), getOrganizerEve
 // Get all events
 router.get("/", getAllEvents);
 
+// search events
+router.get("/search", searchEvents);
+
 // Get a specific event
 router.get("/:id", getEventById);
 
@@ -37,6 +42,9 @@ router.post("/register/:id", registerEvent);
 
 //cancel registration for an event
 router.post("/cancel-registration/:id", cancelRegistration);
+
+// become an event volunteer
+router.post("/volunteer/:id", restrictTo(roles.volunteer), eventVolunteer);
 
 // check registration status
 router.get("/registration-status/:id", checkEventRegistration);
