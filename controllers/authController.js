@@ -175,15 +175,16 @@ export const signin = catchAsync(async (req, res, next) => {
 
 export const refreshToken = catchAsync(async (req, res, next) => {
   const { jwt: refreshToken } = req.cookies;
+  const { refreshTokenBody } = req.body;
 
-  if (!refreshToken) {
+  if (!refreshToken && !refreshTokenBody) {
     return next(
       new AppError("Session expired or invalid. Please log in to continue.", 401)
     );
   }
 
   const decoded = await promisify(jwt.verify)(
-    refreshToken,
+    refreshToken || refreshTokenBody,
     process.env.REFRESH_TOKEN_SECRET
   );
 
