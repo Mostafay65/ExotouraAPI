@@ -4,6 +4,7 @@ import restrictTo from "../middleware/restrictTo.js";
 import {
   deleteUser,
   getAllUsers,
+  getAllVolunteers,
   getUser,
   updateUser,
 } from "../controllers/userController.js";
@@ -16,7 +17,6 @@ import {
 import checkPassword from "../middleware/checkPassword.js";
 import accommodationRoutes from "./accommodationRoutes.js";
 import accommodationRequestRoutes from "./accommodationRequestRoutes.js";
-import eventRoutes from "./eventRoutes.js";
 import upload from "../middleware/imageUploader.js";
 
 const router = express.Router();
@@ -24,6 +24,7 @@ const router = express.Router();
 router.use("/:id/accommodation", accommodationRoutes);
 router.use("/:id/requests", accommodationRequestRoutes);
 
+router.get("/volunteer", getAllVolunteers);
 // Authentication
 router.use(authorize);
 
