@@ -36,6 +36,7 @@ const sendTokenResponse = (user, statusCode, res, message) => {
     status: httpStatusText.SUCCESS,
     message,
     accessToken,
+    refreshToken,
   });
 };
 
