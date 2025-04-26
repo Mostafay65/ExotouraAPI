@@ -175,7 +175,7 @@ export const signin = catchAsync(async (req, res, next) => {
 
 export const refreshToken = catchAsync(async (req, res, next) => {
   const { jwt: refreshToken } = req.cookies;
-  const { refreshTokenBody } = req.body;
+  const { refreshTokenBody } = req.query;
 
   if (!refreshToken && !refreshTokenBody) {
     return next(
