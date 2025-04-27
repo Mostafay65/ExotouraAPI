@@ -25,6 +25,8 @@ const volunteerRequestSchema = new mongoose.Schema(
         "Status must be one of the following: " +
         Object.values(volunteerStatus).join(", "),
     },
+    images: [String],
+    feedback: String,
   },
   {
     timestamps: true,
