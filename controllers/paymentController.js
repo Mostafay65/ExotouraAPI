@@ -9,6 +9,7 @@ import Payment from "../models/paymentModel.js";
 import paymentStatus from "../helpers/paymentStatus.js";
 import { getAll } from "./handlerFactory.js";
 import roles from "../helpers/roles.js";
+import ApiFeatures from "../utilities/apiFeatures.js";
 
 export const createStripeAccount = catchAsync(async (req, res, next) => {
   if (req.user.stripeAccountId) {
@@ -246,17 +247,26 @@ export const getAccountRevenue = catchAsync(async (req, res, next) => {
 
 // TODO: Edit later.
 export const getCustomerPayments = catchAsync(async (req, res, next) => {
-  const payments = await Payment.find({ user: req.user._id });
-
-  res.status(200).json({
-    status: httpStatusText.SUCCESS,
-    // result: doc.length,
-    // total,
-    data: {
-      payments,
-    },
-  });
+  const filter = {
+    user: req.user._id,
+  };
+  getAll(Payment, "transactions", filter)(req, res, next);
 });
+// export const getCustomerPayments = catchAsync(async (req, res, next) => {
+//   const features = new ApiFeatures(Payment.find({ user: req.user._id }), req.query)
+//     .limitFields()
+//     .paginate();
+//   const payments = await features.query.populate("transactions")
+
+//   res.status(200).json({
+//     status: httpStatusText.SUCCESS,
+//     result: doc.length,
+//     total,
+//     data: {
+//       payments,
+//     },
+//   });
+// });
 export const getAccountPayments = catchAsync(async (req, res, next) => {
   const payments = await Payment.find().populate({
     path: "activity",
