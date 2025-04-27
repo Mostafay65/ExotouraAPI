@@ -245,28 +245,13 @@ export const getAccountRevenue = catchAsync(async (req, res, next) => {
   });
 });
 
-// TODO: Edit later.
 export const getCustomerPayments = catchAsync(async (req, res, next) => {
   const filter = {
     user: req.user._id,
   };
   getAll(Payment, "transactions", filter)(req, res, next);
 });
-// export const getCustomerPayments = catchAsync(async (req, res, next) => {
-//   const features = new ApiFeatures(Payment.find({ user: req.user._id }), req.query)
-//     .limitFields()
-//     .paginate();
-//   const payments = await features.query.populate("transactions")
 
-//   res.status(200).json({
-//     status: httpStatusText.SUCCESS,
-//     result: doc.length,
-//     total,
-//     data: {
-//       payments,
-//     },
-//   });
-// });
 export const getAccountPayments = catchAsync(async (req, res, next) => {
   const payments = await Payment.find().populate({
     path: "activity",
