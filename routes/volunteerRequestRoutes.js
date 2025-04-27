@@ -11,7 +11,7 @@ import {
 import authorize from "../middleware/authorize.js";
 import restrictTo from "../middleware/restrictTo.js";
 import roles from "../helpers/roles.js";
-
+import upload from "../middleware/imageUploader.js";
 const router = express.Router();
 
 // public routes
@@ -30,7 +30,11 @@ router.get("/my-assigned-requests", restrictTo(roles.volunteer), getMyAssignedRe
 router
   .route("/:id")
   .get(getVolunteerRequest)
-  .patch(restrictTo(roles.volunteer), updateVolunteerRequestStatus);
+  .patch(
+    restrictTo(roles.volunteer),
+    upload.array("images", 5),
+    updateVolunteerRequestStatus
+  );
 
 router.patch("/:id/assign", restrictTo(roles.volunteer), assignVolunteer);
 

@@ -4,23 +4,30 @@ import catchAsync from "../utilities/catchAsync.js";
 import AppError from "../utilities/appError.js";
 import httpStatusText from "../helpers/httpStatusText.js";
 import volunteerStatus from "../helpers/volunteerStatus.js";
-
+import filterBody from "../utilities/filterBody.js";
 // Get all volunteer requests with user and volunteer populated
-export const getAllVolunteerRequests = getAll(VolunteerRequest, [
-  { path: "user", select: "name email profilePicture" },
-  { path: "volunteer", select: "name email profilePicture" },
-]);
+export const getAllVolunteerRequests = getAll(
+  VolunteerRequest,
+  [
+    { path: "user", select: "fullName email profilePicture" },
+    { path: "volunteer", select: "fullName email profilePicture" },
+  ],
+  { status: volunteerStatus.pending }
+);
 
 // Get single volunteer request
 export const getVolunteerRequest = getOne(VolunteerRequest, [
-  { path: "user", select: "name email profilePicture" },
-  { path: "volunteer", select: "name email profilePicture" },
+  { path: "user", select: "fullName email profilePicture" },
+  { path: "volunteer", select: "fullName email profilePicture" },
 ]);
 
 // Create volunteer request
 export const createVolunteerRequest = catchAsync(async (req, res, next) => {
   // Set the user to the current logged in user
   req.body.user = req.user._id;
+  if (req.body.volunteer) {
+    req.body.status = volunteerStatus.accepted;
+  }
 
   // volunteer ==> optinal
   // message
@@ -38,18 +45,19 @@ export const createVolunteerRequest = catchAsync(async (req, res, next) => {
 // Update volunteer request status
 export const updateVolunteerRequestStatus = catchAsync(async (req, res, next) => {
   const { id } = req.params;
-  const { status } = req.body;
-
-  const volunteerRequest = await VolunteerRequest.findByIdAndUpdate(
-    id,
-    { status },
-    {
-      new: true,
-      runValidators: true,
-    }
-  ).populate([
-    { path: "user", select: "name email profilePicture" },
-    { path: "volunteer", select: "name email profilePicture" },
+  req.body = filterBody(req.body, "status", "feedback");
+  if (req.files) {
+    req.body.images = [];
+    req.files.forEach((file) => {
+      req.body.images.push(file.filename);
+    });
+  }
+  const volunteerRequest = await VolunteerRequest.findByIdAndUpdate(id, req.body, {
+    new: true,
+    runValidators: true,
+  }).populate([
+    { path: "user", select: "fullName email profilePicture" },
+    { path: "volunteer", select: "fullName email profilePicture" },
   ]);
 
   if (!volunteerRequest) {
@@ -73,7 +81,7 @@ export const assignVolunteer = catchAsync(async (req, res, next) => {
   const volunteerRequest = await VolunteerRequest.findOneAndUpdate(
     {
       _id: id,
-      status: volunteerStatus.pending,
+      status: volunteerStatus.accepted,
       volunteer: { $exists: false },
     },
     {
@@ -85,8 +93,8 @@ export const assignVolunteer = catchAsync(async (req, res, next) => {
       runValidators: true,
     }
   ).populate([
-    { path: "user", select: "name email profilePicture" },
-    { path: "volunteer", select: "name email profilePicture" },
+    { path: "user", select: "fullName email profilePicture" },
+    { path: "volunteer", select: "fullName email profilePicture" },
   ]);
 
   if (!volunteerRequest) {
@@ -109,8 +117,8 @@ export const getMyRequests = catchAsync(async (req, res, next) => {
   const userId = req.user._id;
 
   const volunteerRequests = await VolunteerRequest.find({ user: userId }).populate([
-    { path: "user", select: "name email profilePicture" },
-    { path: "volunteer", select: "name email profilePicture" },
+    { path: "user", select: "fullName email profilePicture" },
+    { path: "volunteer", select: "fullName email profilePicture" },
   ]);
 
   res.status(200).json({
@@ -124,13 +132,14 @@ export const getMyRequests = catchAsync(async (req, res, next) => {
 
 // Get my assigned requests (as a volunteer)
 export const getMyAssignedRequests = catchAsync(async (req, res, next) => {
-  const volunteerId = req.user._id;
+  const filter = { volunteer: req.user._id };
+  if (req.query.status) {
+    filter.status = req.query.status;
+  }
 
-  const volunteerRequests = await VolunteerRequest.find({
-    volunteer: volunteerId,
-  }).populate([
-    { path: "user", select: "name email profilePicture" },
-    { path: "volunteer", select: "name email profilePicture" },
+  const volunteerRequests = await VolunteerRequest.find(filter).populate([
+    { path: "user", select: "fullName email profilePicture" },
+    { path: "volunteer", select: "fullName email profilePicture" },
   ]);
 
   res.status(200).json({
