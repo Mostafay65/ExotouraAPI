@@ -6,14 +6,16 @@ import httpStatusText from "../helpers/httpStatusText.js";
 import volunteerStatus from "../helpers/volunteerStatus.js";
 import filterBody from "../utilities/filterBody.js";
 // Get all volunteer requests with user and volunteer populated
-export const getAllVolunteerRequests = getAll(
-  VolunteerRequest,
-  [
-    { path: "user", select: "fullName email profilePicture" },
-    { path: "volunteer", select: "fullName email profilePicture" },
-  ],
-  { status: volunteerStatus.pending }
-);
+export const getAllVolunteerRequests = catchAsync(async (req, res, next) => {
+  getAll(
+    VolunteerRequest,
+    [
+      { path: "user", select: "fullName email profilePicture" },
+      { path: "volunteer", select: "fullName email profilePicture" },
+    ],
+    { status: req.query.status || volunteerStatus.pending }
+  )(req, res, next);
+});
 
 // Get single volunteer request
 export const getVolunteerRequest = getOne(VolunteerRequest, [
@@ -49,7 +51,7 @@ export const updateVolunteerRequestStatus = catchAsync(async (req, res, next) =>
   if (req.files) {
     req.body.images = [];
     req.files.forEach((file) => {
-      req.body.images.push(file.filename);
+      req.body.images.push(file.path);
     });
   }
   const volunteerRequest = await VolunteerRequest.findByIdAndUpdate(id, req.body, {
@@ -81,8 +83,8 @@ export const assignVolunteer = catchAsync(async (req, res, next) => {
   const volunteerRequest = await VolunteerRequest.findOneAndUpdate(
     {
       _id: id,
-      status: volunteerStatus.accepted,
-      volunteer: { $exists: false },
+      status: volunteerStatus.pending,
+      volunteer: null,
     },
     {
       volunteer: volunteerId,
