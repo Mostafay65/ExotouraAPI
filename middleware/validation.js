@@ -88,3 +88,29 @@ export const validateHangout = (schema) => (req, res, next) => {
   req.body.locations = data.locations || [];
   return next();
 };
+
+export const validatePlace = (schema) => {
+  return (req, res, next) => {
+    const data = { ...req.params, ...req.query, ...req.body };
+    let images = [];
+    if (req.files) {
+      for (const filed in req.files) {
+        images.push(req.files[filed]);
+      }
+    }
+    if (req.file) {
+      images.push(req.file);
+    }
+    data.images = images;
+
+    const result = schema.validate(data, { abortEarly: false });
+    if (result.error) {
+      const messageList = result.error.details.map((obj) => obj.message);
+
+      return res.status(400).json({ success: false, message: messageList });
+    }
+    req.body.imageURLs = data.images?.map((file) => file.path) || [];
+
+    return next();
+  };
+};

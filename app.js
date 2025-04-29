@@ -18,6 +18,7 @@ import roleRequestRouter from "./routes/roleRequestRoutes.js";
 import corsOptions from "./configurations/corsOptions.js";
 import hangoutRouter from "./routes/hangoutRoutes.js";
 import volunteerRequestRouter from "./routes/volunteerRequestRoutes.js";
+import placeRouter from "./routes/placeRoutes.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 export const app = express();
@@ -46,6 +47,7 @@ app.use("/role-request", roleRequestRouter);
 app.use("/disability", disabilityRouter);
 app.use("/hangout", hangoutRouter);
 app.use("/volunteer-request", volunteerRequestRouter);
+app.use("/place", placeRouter);
 
 // Undefined routes
 app.all("*", async (req, res, next) => {
