@@ -15,7 +15,7 @@ import {
   deleteHangoutSchema,
   getHangoutSchema,
 } from "../validations/hangout.validation.js";
-import { validate, validateHangout } from "../middleware/validation.js";
+import { validateHangout } from "../middleware/validation.js";
 
 const router = Router();
 

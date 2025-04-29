@@ -40,10 +40,12 @@ const roleRequestSchema = new mongoose.Schema({
 // Run verification after saving the document
 roleRequestSchema.post("save", async function () {
   try {
+    
     const { data } = await axios.post("http://127.0.0.1:8000/verify", {
       id_url: this.idCard,
       ref_url: this.userPicture,
     });
+    console.log("Face verification response:", data);
 
     if (data.match) {
       await mongoose.model("role Request").findByIdAndUpdate(this._id, {

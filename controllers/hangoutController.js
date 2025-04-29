@@ -13,7 +13,7 @@ export const createHangout = catchAsync(async (req, res, next) => {
   const hangout = await Hangout.create(data);
 
   if (!hangout) {
-    return next(new AppErrorpError("Failed to create hangout.", 400));
+    return next(new AppError("Failed to create hangout.", 400));
   }
 
   return res.status(201).json({
