@@ -75,7 +75,7 @@ export const rejectPlace = catchAsync(async (req, res, next) => {
 });
 
 export const getPlaceById = catchAsync(async (req, res, next) => {
-  getOne(Place, [{ path: "createdBy", select: "fullName profilePicture" }])(
+  getOne(Place, [{ path: "createdBy", select: "fullName profilePicture email bio phoneNumber" }])(
     req,
     res,
     next
