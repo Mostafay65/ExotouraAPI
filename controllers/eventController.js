@@ -22,6 +22,10 @@ const popOptions = [
     path: "volunteers",
     select: "fullName profilePicture ",
   },
+  {
+    path: "lecturers",
+    select: "     fullName profilePicture ",
+  },
 ];
 
 export const getAllEvents = catchAsync(async (req, res, next) => {

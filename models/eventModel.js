@@ -4,6 +4,23 @@ import LocationSchema from "./locationModel.js";
 import cron from "node-cron";
 
 const eventTypes = ["Sport", "Cultural", "Social", "Educational", "Other"];
+const whatWeOfferOptions = [
+  "Luxury hotel stay",
+  "Travel expense coverage",
+  "Speaker honorarium",
+  "Exclusive networking events",
+  "Free gourmet meals",
+  "VIP workshop access",
+  "Premium event badge",
+  "Private airport transfers",
+  "Spa treatment voucher",
+  "Professional lecture recording",
+  "Education credits (CEUs/CMEs)",
+  "Event merchandise gift",
+  "Priority speaking slot",
+  "Complimentary event app access",
+  "Invitation to speaker dinner",
+];
 const eventSchema = new mongoose.Schema(
   {
     name: {
@@ -80,6 +97,30 @@ const eventSchema = new mongoose.Schema(
     place: {
       type: String,
     },
+    lecturers: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: [
+          function () {
+            return this.type === "Educational";
+          },
+          "Lecturers are required for educational events",
+        ],
+      },
+    ],
+    whatWeOffer: [
+      {
+        type: String,
+        enum: whatWeOfferOptions,
+        required: [
+          function () {
+            return this.type === "Educational";
+          },
+          "What we offer is required for educational events",
+        ],
+      },
+    ],
   },
   { timestamps: true }
 );
@@ -123,5 +164,21 @@ cron.schedule("0 * * * *", async () => {
     console.error("Error updating event statuses:", err);
   }
 });
+
+async function geocodeLocation() {
+  await Event.updateMany(
+    {
+      type: "Educational",
+    },
+    {
+      $push: {
+        lecturers: {
+          $each: [new mongoose.Types.ObjectId("67f0e627a661995398d50b66")],
+        },
+      },
+    }
+  );
+}
+// geocodeLocation();
 
 export default Event;

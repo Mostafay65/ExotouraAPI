@@ -52,6 +52,10 @@ const userSchema = new mongoose.Schema(
       },
       default: [roles.user],
     },
+    createdAt: {
+      type: Date,
+      default: Date.now(),
+    },
     emailStatus: {
       type: String,
       enum: {
@@ -184,5 +188,6 @@ userSchema.methods.createVerificationCode = function () {
 };
 
 const User = mongoose.model("User", userSchema);
+
 
 export default User;
