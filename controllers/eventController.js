@@ -9,16 +9,6 @@ import Event from "../models/eventModel.js";
 import catchAsync from "../utilities/catchAsync.js";
 import AppError from "../utilities/appError.js";
 
-export const getAllEvents = catchAsync(async (req, res, next) => {
-  const filter = {};
-  if (req.params.id) filter.owner = req.params.id;
-  getAll(Event, [{ path: "attendees", select: "fullName profilePicture" }], filter)(
-    req,
-    res,
-    next
-  );
-});
-
 const popOptions = [
   {
     path: "owner",
@@ -33,6 +23,12 @@ const popOptions = [
     select: "fullName profilePicture ",
   },
 ];
+
+export const getAllEvents = catchAsync(async (req, res, next) => {
+  const filter = {};
+  if (req.params.id) filter.owner = req.params.id;
+  getAll(Event, popOptions, filter)(req, res, next);
+});
 
 export const getEventById = getOne(Event, popOptions);
 
