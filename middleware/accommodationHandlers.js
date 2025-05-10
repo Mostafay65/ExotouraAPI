@@ -7,6 +7,9 @@ export const filterAccommodationBody = (req, res, next) => {
     req.body.location = {
       coordinates: req.body.location.split(",").map((coord) => Number(coord.trim())),
     };
+    if (req.body.address) {
+      req.body.location.address = req.body.address;
+    }
   }
 
   // facilities, accessibilityFeatures, houseRules
