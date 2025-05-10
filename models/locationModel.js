@@ -23,6 +23,10 @@ const LocationSchema = new mongoose.Schema(
           "Coordinates must be an array with exactly two numbers: [longitude, latitude].",
       },
     },
+    address: {
+      type: String,
+      default: undefined,
+    },
   },
   { _id: false }
 );
