@@ -19,6 +19,7 @@ import corsOptions from "./configurations/corsOptions.js";
 import hangoutRouter from "./routes/hangoutRoutes.js";
 import volunteerRequestRouter from "./routes/volunteerRequestRoutes.js";
 import placeRouter from "./routes/placeRoutes.js";
+import chatRouter from "./routes/chatRoutes.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 export const app = express();
@@ -48,6 +49,7 @@ app.use("/disability", disabilityRouter);
 app.use("/hangout", hangoutRouter);
 app.use("/volunteer-request", volunteerRequestRouter);
 app.use("/place", placeRouter);
+app.use("/chat", chatRouter);
 
 // Undefined routes
 app.all("*", async (req, res, next) => {
