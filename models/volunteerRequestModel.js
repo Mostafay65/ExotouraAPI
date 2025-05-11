@@ -33,5 +33,5 @@ const volunteerRequestSchema = new mongoose.Schema(
   }
 );
 
-const VolunteerRequest = mongoose.model("VolunteerRequest", volunteerRequestSchema);
+const VolunteerRequest = mongoose.model("Volunteer Request", volunteerRequestSchema);
 export default VolunteerRequest;
