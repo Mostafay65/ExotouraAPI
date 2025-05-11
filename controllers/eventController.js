@@ -237,7 +237,6 @@ export const getAllEventLecturerRequests = catchAsync(async (req, res, next) => 
   const requests = await lecturerRequestModel
     .find({
       event: id,
-      user: userId,
       status: requestStatus.pending,
     })
     .populate({
@@ -305,4 +304,42 @@ export const acceptOrRejectLecturerRequest = catchAsync(async (req, res, next) =
   } else {
     return next(new AppError(`Invalid action.`, 400));
   }
+});
+
+export const getEventStatistics = catchAsync(async (req, res, next) => {
+  const stats = await Event.aggregate([
+    {
+      $addFields: {
+        totalAttendeeRevenue: { $multiply: [{ $size: "$attendees" }, "$price"] },
+        accessibilityFeatureCount: { $size: "$accessibilityFeatures" },
+      },
+    },
+    {
+      $group: {
+        _id: "$type",
+        totalEvents: { $sum: 1 },
+        totalAttendees: { $sum: { $size: "$attendees" } },
+        totalVolunteers: { $sum: { $size: "$volunteers" } },
+        avgCa: { $avg: "$maxCapacity" },
+        avgPrice: { $avg: "$price" },
+        totalRevenueEstimate: { $sum: "$totalAttendeeRevenue" },
+        totalAccessibilityFeatures: { $sum: "$accessibilityFeatureCount" },
+      },
+    },
+  ]);
+
+  res.status(200).json({
+    status: "success",
+    data: stats.map((item) => ({
+      type: item._id,
+      totalEvents: item.totalEvents,
+      totalAttendees: item.totalAttendees,
+      totalVolunteers: item.totalVolunteers,
+      eventsWithDisabilitySupport: item.eventsWithDisabilitySupport,
+      averageCapacity: Math.round(item.avgCapacity),
+      averagePrice: Math.round(item.avgPrice),
+      totalRevenueEstimate: Math.round(item.totalRevenueEstimate),
+      totalAccessibilityFeatures: item.totalAccessibilityFeatures,
+    })),
+  });
 });

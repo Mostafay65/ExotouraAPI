@@ -12,6 +12,7 @@ import {
   getOrganizerEvents,
   eventVolunteer,
   searchEvents,
+  getEventStatistics,
 } from "../controllers/eventController.js";
 import authorize from "../middleware/authorize.js";
 import restrictTo from "../middleware/restrictTo.js";
@@ -29,6 +30,7 @@ router.get("/organizer", authorize, restrictTo(roles.organizer), getOrganizerEve
 
 // Get all events
 router.get("/", getAllEvents);
+router.get("/statistics", getEventStatistics);
 
 // search events
 router.get("/search", searchEvents);
