@@ -12,12 +12,14 @@ import {
   getOrganizerEvents,
   eventVolunteer,
   searchEvents,
+  getEventStatistics,
 } from "../controllers/eventController.js";
 import authorize from "../middleware/authorize.js";
 import restrictTo from "../middleware/restrictTo.js";
 import roles from "../helpers/roles.js";
 import { filterEvent } from "../middleware/eventHandlers.js";
 import upload from "../middleware/imageUploader.js";
+import lecturerRouter from "./lecturerRoutes.js";
 const router = Router();
 
 // Get user's events
@@ -28,13 +30,14 @@ router.get("/organizer", authorize, restrictTo(roles.organizer), getOrganizerEve
 
 // Get all events
 router.get("/", getAllEvents);
+router.get("/statistics", getEventStatistics);
 
 // search events
 router.get("/search", searchEvents);
-
+// Get events by lecturer
+router.use("/lecturer", lecturerRouter);
 // Get a specific event
 router.get("/:id", getEventById);
-
 router.use(authorize);
 
 //register an event

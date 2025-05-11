@@ -148,7 +148,7 @@ eventSchema.pre("save", function (next) {
 
 const Event = mongoose.model("Event", eventSchema);
 
-// Runs every hour ?/
+// Runs every hour 
 cron.schedule("0 * * * *", async () => {
   const now = new Date();
 
@@ -164,21 +164,5 @@ cron.schedule("0 * * * *", async () => {
     console.error("Error updating event statuses:", err);
   }
 });
-
-async function geocodeLocation() {
-  await Event.updateMany(
-    {
-      type: "Educational",
-    },
-    {
-      $push: {
-        lecturers: {
-          $each: [new mongoose.Types.ObjectId("67f0e627a661995398d50b66")],
-        },
-      },
-    }
-  );
-}
-// geocodeLocation();
 
 export default Event;
