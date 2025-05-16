@@ -36,16 +36,22 @@ export const getAccommodationsOnMap = catchAsync(async (req, res, next) => {
     });
   }
 
-  const accommodations = await Accommodation.find({
-    "location.coordinates": {
-      $geoWithin: {
-        $box: [
-          [parseFloat(blLat), parseFloat(blLng)], // Bottom-left corner
-          [parseFloat(trLat), parseFloat(trLng)], // Top-right corner
-        ],
+  const accommodations = await Accommodation.aggregate([
+    {
+      $match: {
+        "location.coordinates": {
+          $geoWithin: {
+            $box: [
+              [parseFloat(blLat), parseFloat(blLng)],
+              [parseFloat(trLat), parseFloat(trLng)],
+            ],
+          },
+        },
       },
     },
-  }).select("name _id location");
+    { $sample: { size: 50 } },
+    { $project: { name: 1, _id: 1, location: 1 } },
+  ]);
 
   res.status(200).json({
     status: "success",
