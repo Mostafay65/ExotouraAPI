@@ -1,20 +1,15 @@
 import mongoose from "mongoose";
-import activityTypes from "../helpers/activityTypes.js";
 
 const chatSchema = new mongoose.Schema(
   {
-    activityType: {
+    name: {
       type: String,
-      enum: {
-        values: [...Object.values(activityTypes)],
-        message: `Acivity type is either: ${Object.values(activityTypes).join(", ")}.`,
+      required: function () {
+        return this.isGroup;
       },
-      required: [true, "Activity type is required."],
     },
-    activity: {
-      type: mongoose.Schema.Types.ObjectId,
-      refPath: "activityType",
-      required: [true, "Activity ID is required"],
+    groupPicture: {
+      type: String,
     },
     participants: [
       {
@@ -30,19 +25,13 @@ const chatSchema = new mongoose.Schema(
     isActive: {
       type: Boolean,
       default: true,
-      description: "Indicates if typing and sending messages is allowed in this chat",
+    },
+    isGroup: {
+      type: Boolean,
+      default: false,
     },
   },
   { timestamps: true }
-);
-
-// Create a compound index to ensure uniqueness for chats
-chatSchema.index(
-  {
-    activityType: 1,
-    activity: 1,
-  },
-  { unique: true }
 );
 
 const Chat = mongoose.model("Chat", chatSchema);

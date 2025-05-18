@@ -7,7 +7,6 @@ import User from "../models/userModel.js";
 import jwt from "jsonwebtoken";
 
 let io;
-const userSocketMap = new Map();
 
 export const initializeSocket = (server) => {
   io = new Server(server, {
@@ -53,223 +52,212 @@ export const initializeSocket = (server) => {
 
   io.on("connection", (socket) => {
     const userId = socket.user._id.toString();
-    if (!userSocketMap.has(userId)) {
-      userSocketMap.set(userId, new Set());
-    }
-    userSocketMap.get(userId).add(socket.id);
+    socket.join(userId);
 
-    socket.on("join_chat", (chatId) => {
-      socket.join(chatId);
-    });
+    socket.on("send_message", async (data) => {
+      let { chatId, clientTempId, participants = [], content } = data;
+      const senderId = socket.user._id.toString();
 
-    socket.on("leave_chat", (chatId) => {
-      socket.leave(chatId);
-    });
+      if (!content?.trim()) return;
 
-    socket.on("send_message", async (messageData) => {
-      try {
-        const { chatId, content, activityType, activity, participants } = messageData;
-
-        const senderId = socket.user._id;
-
-        let chat = await Chat.findOne({
-          _id: chatId,
-        });
-
-        if (!chat) {
-          // If the chat does not exist, create it in the database
-          const allParticipants = Array.from(new Set([...participants, senderId]));
-          chat = await Chat.create({
-            activityType,
-            activity,
-            participants: allParticipants,
-          });
-        }
-
-        const message = await Message.create({
-          chat: chat._id,
-          sender: senderId,
-          content,
-          readBy: [senderId],
-        });
-
-        await message.populate({
-          path: "sender",
-          select: "fullName profilePicture",
-        });
-
-        chat.participants.forEach((participantId) => {
-          const participantSockets = userSocketMap.get(participantId.toString());
-
-          if (participantSockets) {
-            participantSockets.forEach((socketId) => {
-              io.to(socketId).emit("receive_message", message);
-            });
-          }
-        });
-
-        // io.to(chat._id.toString()).emit("receive_message", message); // Notify all participants of the new message
-      } catch (error) {
-        console.error("Error sending message:", error);
-        socket.emit("error", { message: "Error sending message" });
+      if (participants.length && !participants.includes(senderId)) {
+        participants.push(senderId);
       }
-    });
 
-    socket.on("create_chat", async (chatData) => {
       try {
-        const { activityType, activity, participants, isSystemInitiated } = chatData;
-        const userId = socket.user._id;
+        let chat;
+        let isNewChat = false;
 
-        const allParticipants = Array.from(new Set([...participants, userId]));
-
-        if (isSystemInitiated) {
-          // Save the chat in the database for system-initiated chats
-          const chat = await Chat.create({
-            activityType,
-            activity,
-            participants: allParticipants,
-          });
-
-          await chat.populate({
+        if (!chatId) {
+          chat = await Chat.findOne({
+            participants: { $all: participants },
+            isGroup: participants.length > 2,
+          }).populate({
             path: "participants",
             select: "fullName profilePicture",
           });
 
-          allParticipants.forEach((participantId) => {
-            io.to(participantId.toString()).emit("new_chat", chat); // Notify all participants of the new chat
-          });
+          if (!chat) {
+            if (participants.length !== 2) return;
+            if (!participants.includes(senderId)) return;
+
+            chat = await Chat.create({
+              participants,
+              isGroup: participants.length > 2,
+            });
+
+            isNewChat = true;
+
+            // Repopulate after creation
+            chat = await Chat.findById(chat._id).populate({
+              path: "participants",
+              select: "fullName profilePicture",
+            });
+          }
+
+          chatId = chat._id.toString();
         } else {
-          // For user-initiated chats, emit the chat details without saving to the database
-          const chat = {
-            activityType,
-            activity,
-            participants: allParticipants,
-          };
-
-          allParticipants.forEach((participantId) => {
-            io.to(participantId.toString()).emit("new_chat", chat); // Notify all participants of the new chat
+          chat = await Chat.findById(chatId).populate({
+            path: "participants",
+            select: "fullName profilePicture",
           });
+
+          if (!chat) return;
+          if (!chat.participants.map((p) => p._id.toString()).includes(senderId)) return;
         }
-      } catch (error) {
-        console.error("Error creating chat:", error);
-        socket.emit("error", { message: "Error creating chat" });
-      }
-    });
 
-    socket.on("mark_messages_read", async (data) => {
-      try {
-        const { chatId } = data;
-        const userId = socket.user._id;
-
-        const chat = await Chat.findOne({
-          _id: chatId,
-          participants: { $in: [userId] },
+        const message = await Message.create({
+          chat: chat._id,
+          sender: socket.user,
+          content,
+          readBy: [senderId],
         });
 
-        if (!chat) {
-          socket.emit("error", {
-            message: "Chat not found or you are not a participant",
-          });
-          return;
-        }
+        await Chat.findByIdAndUpdate(chat._id, {
+          lastMessage: message._id,
+          updatedAt: new Date(),
+        });
 
-        await Message.updateMany(
-          {
-            chat: chatId,
-            sender: { $ne: userId },
-            readBy: { $ne: userId },
+        const payload = {
+          chat: {
+            _id: chat._id,
+            participants: chat.participants,
+            isGroup: chat.isGroup,
+            isActive: chat.isActive,
+            lastMessage: message,
           },
-          { $push: { readBy: userId } }
-        );
+          message,
+          isNewChat,
+          clientTempId,
+        };
 
-        socket.to(chatId).emit("messages_read", { chatId, userId });
-      } catch (error) {
-        socket.emit("error", { message: "Error marking messages as read" });
-      }
-    });
-
-    socket.on("typing", async (data) => {
-      try {
-        const chatId = data.chatId;
-        const userId = socket.user._id;
-        const fullName = socket.user.fullName;
-
-        // Validate chatId
-        if (!chatId || typeof chatId !== "string") {
-          socket.emit("error", { message: "Invalid chatId provided" });
-          return;
-        }
-
-        const chat = await Chat.findOne({
-          _id: chatId,
-          participants: { $in: [userId] },
+        chat.participants.forEach((participant) => {
+          io.to(participant._id.toString()).emit("incoming_chat_message", payload);
         });
+      } catch (err) {
+        console.error("send_message error:", err);
+        socket.emit("error", { message: "Failed to send message" });
+      }
+    });
 
-        if (!chat || !chat.isActive) {
-          socket.emit("error", {
-            message: "This chat is no longer active. You cannot type here anymore.",
+    socket.on("typing", async ({ chatId }) => {
+      if (!chatId) return;
+      const chat = await Chat.findById(chatId);
+      if (!chat) return;
+
+      chat.participants.forEach((participant) => {
+        if (participant.toString() !== socket.user._id.toString()) {
+          io.to(participant.toString()).emit("user_typing", {
+            chatId,
+            userId: socket.user._id,
           });
-          return;
         }
-
-        socket.to(chatId).emit("user_typing", { userId, fullName });
-      } catch (error) {
-        socket.emit("error", { message: "Error in typing event" });
-      }
+      });
     });
 
-    socket.on("stop_typing", (chatId) => {
+    socket.on("stop_typing", async ({ chatId }) => {
+      if (!chatId) return;
+      const chat = await Chat.findById(chatId);
+      if (!chat) return;
+
+      chat.participants.forEach((participant) => {
+        if (participant.toString() !== socket.user._id.toString()) {
+          io.to(participant.toString()).emit("user_stopped_typing", {
+            chatId,
+            userId: socket.user._id,
+          });
+        }
+      });
+    });
+
+    socket.on("mark_messages_read", async ({ chatId }) => {
       const userId = socket.user._id;
-      socket.to(chatId).emit("user_stop_typing", { userId });
-    });
 
-    socket.on("disconnect", () => {
-      const userId = socket.user._id.toString();
-      if (userSocketMap.has(userId)) {
-        const sockets = userSocketMap.get(userId);
-        sockets.delete(socket.id);
+      const chat = await Chat.findOne({
+        _id: chatId,
+        participants: { $in: [userId] },
+      });
 
-        if (sockets.size === 0) {
-          userSocketMap.delete(userId);
-        }
-      }
+      if (!chat) return;
+
+      await Message.updateMany(
+        {
+          chat: chatId,
+          sender: { $ne: userId },
+          readBy: { $ne: userId },
+        },
+        { $push: { readBy: userId } }
+      );
+
+      // Notify all participants about messages being read
+      chat.participants.forEach((participant) => {
+        io.to(participant.toString()).emit("messages_read", {
+          chatId,
+          userId: userId.toString(),
+        });
+      });
     });
   });
 
   return io;
 };
 
-// Function to emit events from outside socket context (e.g., from controllers)
-export const emitToChat = (chatId, event, data) => {
-  if (io) {
-    io.to(chatId).emit(event, data);
+export async function createGroupChat({ name, participantIds, groupPicture }) {
+  if (!name || !Array.isArray(participantIds) || participantIds.length < 2) {
+    throw new AppError("Group name and at least 2 participants are required", 400);
   }
-};
 
-// Function to deactivate a chat (prevent further typing/messaging)
-export const deactivateChat = async (chatId) => {
-  try {
-    const chat = await Chat.findByIdAndUpdate(chatId, { isActive: false }, { new: true });
+  const participants = await User.find({
+    _id: { $in: participantIds },
+    emailStatus: "verified",
+  });
 
-    if (chat) {
-      // Notify all participants that the chat has been deactivated
-      io.to(chatId).emit("chat_deactivated", {
-        chatId,
-        message: "This chat is no longer active. You cannot type here anymore.",
-      });
-      return true;
-    }
-    return false;
-  } catch (error) {
-    console.error("Error deactivating chat:", error);
-    return false;
+  if (participants.length < 2) {
+    throw new AppError("At least two valid, verified users must be provided", 400);
   }
-};
 
-export const emitToUser = (userId, event, data) => {
-  if (io && userSocketMap.has(userId.toString())) {
-    userSocketMap.get(userId.toString()).forEach((socketId) => {
-      io.to(socketId).emit(event, data);
-    });
-  }
-};
+  let chat = await Chat.create({
+    name,
+    groupPicture,
+    participants: participants.map((p) => p._id),
+    isGroup: true,
+  });
+
+  chat = await Chat.findById(chat._id).populate(
+    "participants",
+    "fullName profilePicture"
+  );
+
+  const systemMessage = await Message.create({
+    chat: chat._id,
+    sender: null,
+    senderType: "system",
+    content: `You were added to the group chat: ${name}`,
+    readBy: [],
+  });
+
+  await Chat.findByIdAndUpdate(chat._id, {
+    lastMessage: systemMessage._id,
+    updatedAt: new Date(),
+  });
+
+  const payload = {
+    chat: {
+      _id: chat._id,
+      name: chat.name,
+      groupPicture: chat.groupPicture,
+      participants: chat.participants,
+      isGroup: true,
+      isActive: chat.isActive,
+      lastMessage: systemMessage,
+    },
+    message: systemMessage,
+    isNewChat: true,
+  };
+
+  chat.participants.forEach((participant) => {
+    io.to(participant._id.toString()).emit("incoming_chat_message", payload);
+  });
+
+  return chat;
+}

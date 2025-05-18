@@ -4,49 +4,6 @@ import catchAsync from "../utilities/catchAsync.js";
 import AppError from "../utilities/appError.js";
 import httpStatusText from "../helpers/httpStatusText.js";
 
-// Create a new chat
-export const createChat = catchAsync(async (req, res, next) => {
-  const { activityType, activity, participants } = req.body;
-
-  const allParticipants = Array.from(new Set([...participants, req.user._id]));
-
-  const existingChat = await Chat.findOne({
-    activityType,
-    activity,
-  });
-
-  if (existingChat) {
-    const newParticipants = participants.filter(
-      (p) => !existingChat.participants.includes(p)
-    );
-
-    if (newParticipants.length > 0) {
-      existingChat.participants.push(...newParticipants);
-      await existingChat.save();
-    }
-
-    return res.status(200).json({
-      status: httpStatusText.SUCCESS,
-      data: {
-        chat: existingChat,
-      },
-    });
-  }
-
-  const chat = await Chat.create({
-    activityType,
-    activity,
-    participants: allParticipants,
-  });
-
-  res.status(201).json({
-    status: httpStatusText.SUCCESS,
-    data: {
-      chat,
-    },
-  });
-});
-
 // Get all chats for a user
 export const getUserChats = catchAsync(async (req, res, next) => {
   const userId = req.user._id;
@@ -118,6 +75,7 @@ export const getChatById = catchAsync(async (req, res, next) => {
   // Mark messages as read by this user
   const unreadMessages = messages.filter(
     (message) =>
+      message.sender && // <-- add this line
       message.sender._id.toString() !== userId.toString() &&
       !message.readBy.includes(userId)
   );
