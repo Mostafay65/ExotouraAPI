@@ -21,7 +21,7 @@ router.post(
   "/",
   authorize,
   upload.array("images", 15),
-  validatePlace(createPlaceSchema),
+  // validatePlace(createPlaceSchema),
   createPlace
 );
 // Get all places (Approved)
