@@ -3,3 +3,5 @@
 - send filess as chunks
 - merge model hndler with controller
 - add dispute logic for payments.
+- fix the bug in the navbar.
+- add scoring system with points for volunteers on success.
