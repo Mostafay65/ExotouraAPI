@@ -1,7 +1,4 @@
 - add limit rate to restrict the number of requests per user
-- revoke the token on logout.
 - send filess as chunks
-- merge model hndler with controller
 - add dispute logic for payments.
-- fix the bug in the navbar.
 - add scoring system with points for volunteers on success.
