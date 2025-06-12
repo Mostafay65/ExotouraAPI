@@ -1,13 +1,15 @@
 import mongoose from "mongoose";
 
 export const placeTypes = [
-  "Traveler's Choice",
-  "Family friendly",
-  "Hidden gems",
-  "Museums",
-  "Outdoors",
-  "Arts & theater",
-  "Nightlife",
+  "Speciality Museums",
+  "Ancient Ruins",
+  "Historic Sites",
+  "National Parks",
+  "Points of Interest & Landmarks",
+  "Cemeteries",
+  "Islands",
+  "Bodies of Water",
+  "Flea & Street Markets",
 ];
 
 const placeSchema = new mongoose.Schema(
